@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AfriVoice Triage — Agentic Voice AI for African Healthcare
 
-## Getting Started
+**Submission for:** MLC (Africa) × Intron Agentic Voice AI Challenge 2026
 
-First, run the development server:
+## 🚀 Quick Start
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Clone the repo
+2. Install dependencies: `npm install`
+3. Set up environment variables: Copy `.env.local.example` to `.env.local` and add your Sahara API keys
+4. Run development server: `npm run dev`
+5. Open http://localhost:3000
+
+## 🏗️ Stack
+
+- **Frontend:** Next.js 14, TypeScript, Tailwind CSS v4, shadcn/ui
+- **Backend:** Next.js API Routes
+- **AI:** LangChain + LangGraph for agentic reasoning, Intron Sahara v2 for STT/TTS
+- **Database:** (planned) PostgreSQL + Prisma
+
+## 📁 Structure
+
+```
+app/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── chat/
+│   │   │       └── route.ts       # Chat endpoint
+│   │   ├── bench/
+│   │   │   └── page.tsx           # Benchmark page
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx               # Main triage page
+│   ├── components/
+│   │   └── voice-ui.tsx           # Voice recording + chat UI
+│   └── lib/
+│       ├── agent.ts               # LangGraph agent
+│       ├── sahara.ts              # Intron Sahara API client
+│       └── utils.ts               # cn helper
+├── .env.local.example
+└── package.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎯 Vertical: Health
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Builds a voice-driven patient **triage assistant** that:
+- Collects symptoms via voice (English, Swahili, Yoruba, Hausa, code-switching supported)
+- Classifies urgency (low, moderate, high, emergency)
+- Recommends next steps (self-care, telehealth, in-person visit)
+- Demonstrates true **agentic capability** — not just transcription
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📊 Benchmark
 
-## Learn More
+Benchmarks ≥3 models on code-switched audio:
+1. **Intron Sahara v2** (primary)
+2. OpenAI **Whisper Large v3**
+3. OpenAI **GPT-4o Audio**
 
-To learn more about Next.js, take a look at the following resources:
+Metrics: WER, Code-switch accuracy, Latency, Cost
+Dataset: AfriSwitch (20.40 hours, 5 language pairs)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🏆 Judging Criteria
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Real-world impact (35%) — Healthcare triage for 1B+ Africans
+- Code-switching performance (25%) — Agentic use on mixed-language speech
+- Product quality (20%) — Polished UI, clear workflow
+- Technical execution (15%) — Reliable, low-latency pipeline
+- Ethics/safety (5%) — Privacy-first, consent, no diagnoses
 
-## Deploy on Vercel
+## 📝 Deliverables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [x] Solution code (this repo)
+- [ ] Demo video
+- [ ] Benchmark report
+- [ ] Ethics/inclusion note
+- [ ] Audio samples with metadata
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔗 Resources
+
+- Challenge: https://intron.io/compete
+- Sahara Docs: https://docs.voice.intron.io/
+- AfriSwitch Dataset: https://huggingface.co/datasets/intronhealth/AfriSwitch
+- ML Collective: https://mlcollective.org

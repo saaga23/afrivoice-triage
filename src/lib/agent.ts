@@ -226,7 +226,8 @@ export class VoiceAgent {
     const result = (await this.graph.invoke(state)) as AgentState;
     if (result.response) {
       try {
-        const tts = await client.synthesizeSpeech(result.response);
+        // Short TTS budget: a stalled TTS queue must not hold the triage response hostage.
+        const tts = await client.synthesizeSpeech(result.response, { timeoutMs: 12000 });
         result.audioUrl = tts.audio_url;
       } catch {
         // TTS failure should not block the response
@@ -245,7 +246,7 @@ export class VoiceAgent {
     const result = (await this.graph.invoke(state)) as AgentState;
     if (result.response && this.client) {
       try {
-        const tts = await this.client.synthesizeSpeech(result.response);
+        const tts = await this.client.synthesizeSpeech(result.response, { timeoutMs: 12000 });
         result.audioUrl = tts.audio_url;
       } catch {
         // TTS failure should not block the response

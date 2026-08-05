@@ -6,6 +6,8 @@ export type SaharaTTSOptions = {
   voice_accent?: string;
   voice_gender?: "male" | "female";
   voice_language?: string;
+  /** Max time (ms) to wait for queued TTS audio before giving up. Default 60000. */
+  timeoutMs?: number;
 };
 
 export type TranscriptionResult = {
@@ -50,6 +52,7 @@ export class SaharaClient {
       method: "POST",
       headers: this.authHeaders(),
       body: formData,
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!response.ok) {
@@ -84,6 +87,7 @@ export class SaharaClient {
     for (let i = 0; i < attempts; i++) {
       const response = await fetch(`${INTRON_VOICE_BASE}/file/v1/status/${encodeURIComponent(fileId)}`, {
         headers: this.authHeaders(),
+        signal: AbortSignal.timeout(10000),
       });
 
       if (!response.ok) {
@@ -139,6 +143,7 @@ export class SaharaClient {
         voice_gender: options.voice_gender || "female",
         voice_language: options.voice_language || "en",
       }),
+      signal: AbortSignal.timeout(20000),
     });
 
     if (!response.ok && response.status !== 503) {
@@ -151,7 +156,7 @@ export class SaharaClient {
     if (!audioPath) {
       const textId = result.data?.text_id;
       if (textId) {
-        return this.pollTTSAudio(textId);
+        return this.pollTTSAudio(textId, options.timeoutMs ?? 60000);
       }
       throw new Error(`Sahara TTS failed: missing audio_path in ${JSON.stringify(result)}`);
     }
@@ -166,10 +171,12 @@ export class SaharaClient {
     };
   }
 
-  private async pollTTSAudio(textId: string): Promise<SpeechSynthesisResult> {
-    for (let i = 0; i < 20; i++) {
+  private async pollTTSAudio(textId: string, timeoutMs = 60000): Promise<SpeechSynthesisResult> {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
       const response = await fetch(`${INTRON_VOICE_BASE}/tts/v1/status/${encodeURIComponent(textId)}`, {
         headers: this.authHeaders(),
+        signal: AbortSignal.timeout(10000),
       });
 
       if (!response.ok) {

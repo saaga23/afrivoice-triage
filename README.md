@@ -10,6 +10,13 @@
 4. Run development server: `npm run dev`
 5. Open http://localhost:3000
 
+## 🎬 Demo Video
+
+- **`public/demo-video/afrivoice-live-demo-narrated.mp4`** (81s, narrated) — a **real screen recording of the live production app**, not a mock: a code-switched Swahili–English voice message is transcribed by Sahara STT in real time, the LangGraph agent classifies intent, an emergency utterance ("severe chest pain… cannot breathe") triggers the red `high urgency` triage badge with seek-immediate-care guidance, and the benchmark page is shown. Narration: Sahara TTS voiceover.
+- `public/demo-video/afrivoice-live-demo.mp4` — same recording without narration.
+- YouTube: **(link to be added — upload `afrivoice-live-demo-narrated.mp4` as unlisted and paste the URL here)**
+- Older narrated slideshow: `public/demo-video/afrivoice-demo.mp4` (superseded by the live recording).
+
 ## 🏗️ Stack
 
 - **Frontend:** Next.js 14, TypeScript, Tailwind CSS v4, shadcn/ui
@@ -71,7 +78,7 @@ Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances) + 6 synt
 ## 📝 Deliverables
 
 - [x] Solution code (this repo)
-- [x] Demo video (`public/demo-video/afrivoice-demo.mp4`)
+- [x] Demo video (`public/demo-video/afrivoice-live-demo-narrated.mp4` — live-app recording; YouTube link pending upload)
 - [x] Benchmark report (`docs/BENCHMARK.md`)
 - [x] Ethics/inclusion note (`docs/ETHICS.md`)
 - [x] Audio samples with metadata (`public/data/`)

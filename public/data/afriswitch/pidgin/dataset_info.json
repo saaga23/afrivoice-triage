@@ -1,0 +1,60 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "pidgin",
+  "dataset_name": "afri_switch",
+  "dataset_size": 525690275,
+  "description": "",
+  "download_size": 516485415,
+  "features": {
+    "audio": {
+      "sampling_rate": 16000,
+      "_type": "Audio"
+    },
+    "language": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "filename": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "transcription": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "transcription_tagged": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "cmi": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "num_switch_points": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "duration": {
+      "dtype": "float32",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 1042175690,
+  "splits": {
+    "test": {
+      "name": "test",
+      "num_bytes": 525690275,
+      "num_examples": 1801,
+      "dataset_name": "afri_switch"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}

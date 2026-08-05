@@ -1,6 +1,6 @@
 {
   "id": "sample-04",
-  "text": "Ina dauwa da zazzaɓar jiki. Please I need urgent care, my temperature is very high.",
+  "text": "Ina dauwa da zazza\u00c9\u201car jiki. Please I need urgent care, my temperature is very high.",
   "language": "hausa",
   "gender": "male",
   "accent": "hausa",
@@ -9,5 +9,8 @@
   "generated_at": "2026-08-05T06:04:29.642Z",
   "code_switch": "en",
   "cmi": 0.3,
-  "duration_estimate": 9
+  "duration_estimate": 9,
+  "domain": "health",
+  "device_type": "synthetic (Sahara TTS, studio quality)",
+  "noise_conditions": "clean, no background noise"
 }

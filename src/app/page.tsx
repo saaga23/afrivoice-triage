@@ -63,7 +63,7 @@ export default function Home() {
               </Badge>
               <Badge variant="outline" className="gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                HIPRA-Ready
+                HIPAA-Ready
               </Badge>
               <Badge variant="outline" className="gap-1.5">
                 <Activity className="w-3.5 h-3.5" />
@@ -160,7 +160,7 @@ export default function Home() {
                     <Badge variant="secondary" className="text-xs">Primary</Badge>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-300">Whisper Large v3</span>
+                    <span className="text-slate-600 dark:text-slate-300">Whisper (whisper-1)</span>
                     <Badge variant="outline" className="text-xs">Baseline</Badge>
                   </div>
                   <div className="flex items-center justify-between text-sm">

@@ -1,5 +1,5 @@
 import { StateGraph, END } from "@langchain/langgraph";
-import { createSaharaClient } from "./sahara";
+import { createSaharaClient, SaharaClient } from "./sahara";
 import OpenAI from "openai";
 
 export type AgentMessage = {
@@ -32,12 +32,13 @@ function createLLMClient() {
 }
 
 export class VoiceAgent {
-  private client: ReturnType<typeof createSaharaClient>;
+  private client: SaharaClient | null;
   private graph: ReturnType<VoiceAgent["createGraph"]>;
   private llm: OpenAI | null;
 
   constructor(apiKey?: string) {
-    this.client = createSaharaClient(apiKey);
+    const key = apiKey || process.env.SAHARA_API_KEY;
+    this.client = key ? createSaharaClient(key) : null;
     this.llm = createLLMClient();
     this.graph = this.createGraph();
   }
@@ -146,7 +147,11 @@ export class VoiceAgent {
   }
 
   async processVoiceInput(audioBlob: Blob): Promise<AgentState> {
-    const transcription = await this.client.transcribeStream(audioBlob, {
+    const client = this.client;
+    if (!client) {
+      throw new Error("SAHARA_API_KEY is required for voice input");
+    }
+    const transcription = await client.transcribeStream(audioBlob, {
       language: "en",
     });
 
@@ -160,7 +165,7 @@ export class VoiceAgent {
     const result = (await this.graph.invoke(state)) as AgentState;
     if (result.response) {
       try {
-        const tts = await this.client.synthesizeSpeech(result.response);
+        const tts = await client.synthesizeSpeech(result.response);
         result.audioUrl = tts.audio_url;
       } catch {
         // TTS failure should not block the response
@@ -177,7 +182,7 @@ export class VoiceAgent {
     };
 
     const result = (await this.graph.invoke(state)) as AgentState;
-    if (result.response) {
+    if (result.response && this.client) {
       try {
         const tts = await this.client.synthesizeSpeech(result.response);
         result.audioUrl = tts.audio_url;

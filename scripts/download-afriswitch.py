@@ -5,15 +5,19 @@ OUTPUT_DIR = 'C:\\Users\\USER\\Downloads\\mlc hackathon\\app\\public\\data\\afri
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-print("Loading AfriSwitch dataset...")
-dataset = load_dataset("intronhealth/AfriSwitch", split="train", trust_remote_code=True)
+configs = ['swahili', 'yoruba', 'hausa', 'igbo', 'pidgin', 'shona']
 
-print(f"Dataset loaded: {len(dataset)} samples")
-print(f"Features: {dataset.features}")
+for config in configs:
+    try:
+        print(f"\nLoading AfriSwitch config: {config}...")
+        dataset = load_dataset("intronhealth/AfriSwitch", config, split="test", trust_remote_code=False)
+        print(f"Loaded {config}: {len(dataset)} samples")
+        print(f"Features: {dataset.features}")
+        
+        subset = dataset.select(range(min(20, len(dataset))))
+        subset.save_to_disk(os.path.join(OUTPUT_DIR, config))
+        print(f"Saved {config} to {OUTPUT_DIR}/{config}")
+    except Exception as e:
+        print(f"FAILED {config}: {e}")
 
-limit = 50
-subset = dataset.select(range(min(limit, len(dataset))))
-
-subset.save_to_disk(OUTPUT_DIR)
-
-print(f"Saved {len(subset)} samples to {OUTPUT_DIR}")
+print(f"\nDone. Files saved to {OUTPUT_DIR}")

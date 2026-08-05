@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(base64Data, "base64");
     const blob = new Blob([buffer], { type: "audio/webm" });
 
-    const results: Array<{ model: string; wer: number; latency: number; codeSwitchAccuracy: number; costPerMinute: number; transcript?: string; error?: string }> = [];
+    const results: Array<{ model: string; wer: number | null; latency: number; costPerMinute: number | null; transcript?: string; error?: string }> = [];
 
     // Sahara v2 via Intron Voice API
     try {
@@ -47,13 +47,12 @@ export async function POST(req: NextRequest) {
         const transcription = await client.transcribeStream(blob, { language: "en" });
         const latency = (performance.now() - start) / 1000;
         const transcript = transcription.text || "";
-        const wer = referenceText ? computeWER(referenceText, transcript) : 0;
+        const wer = referenceText ? computeWER(referenceText, transcript) : null;
         results.push({
           model: "Sahara v2",
           wer,
           latency,
-          codeSwitchAccuracy: Math.max(0, 1 - wer),
-          costPerMinute: 0.05,
+          costPerMinute: null,
           transcript,
         });
       } else {
@@ -61,8 +60,7 @@ export async function POST(req: NextRequest) {
           model: "Sahara v2",
           wer: 1,
           latency: 0,
-          codeSwitchAccuracy: 0,
-          costPerMinute: 0.05,
+          costPerMinute: null,
           error: "No SAHARA_API_KEY configured",
         });
       }
@@ -72,13 +70,12 @@ export async function POST(req: NextRequest) {
         model: "Sahara v2",
         wer: 1,
         latency: 0,
-        codeSwitchAccuracy: 0,
-        costPerMinute: 0.05,
+        costPerMinute: null,
         error: message,
       });
     }
 
-    // Whisper Large v3
+    // Whisper (whisper-1)
     try {
       const start = performance.now();
       const whisperForm = new FormData();
@@ -95,43 +92,39 @@ export async function POST(req: NextRequest) {
         if (whisperRes.ok) {
           const data = await whisperRes.json();
           const transcript = data.text || "";
-          const wer = referenceText ? computeWER(referenceText, transcript) : 0;
+          const wer = referenceText ? computeWER(referenceText, transcript) : null;
           results.push({
-            model: "Whisper Large v3",
+            model: "Whisper (whisper-1)",
             wer,
             latency,
-            codeSwitchAccuracy: Math.max(0, 1 - wer),
-            costPerMinute: 0,
+            costPerMinute: 0.006,
             transcript,
           });
         } else {
           results.push({
-            model: "Whisper Large v3",
+            model: "Whisper (whisper-1)",
             wer: 1,
             latency,
-            codeSwitchAccuracy: 0,
-            costPerMinute: 0,
+            costPerMinute: 0.006,
             error: `HTTP ${whisperRes.status}`,
           });
         }
       } else {
         results.push({
-          model: "Whisper Large v3",
+          model: "Whisper (whisper-1)",
           wer: 1,
           latency: 0,
-          codeSwitchAccuracy: 0,
-          costPerMinute: 0,
+          costPerMinute: 0.006,
           error: "No OPENAI_API_KEY configured",
         });
       }
     } catch (e) {
       const message = e instanceof Error ? e.message : "Whisper failed";
       results.push({
-        model: "Whisper Large v3",
+        model: "Whisper (whisper-1)",
         wer: 1,
         latency: 0,
-        codeSwitchAccuracy: 0,
-        costPerMinute: 0,
+        costPerMinute: 0.006,
         error: message,
       });
     }
@@ -146,13 +139,12 @@ export async function POST(req: NextRequest) {
       });
       const latency = (performance.now() - start) / 1000;
       const transcript = transcription.text || "";
-      const wer = referenceText ? computeWER(referenceText, transcript) : 0;
+      const wer = referenceText ? computeWER(referenceText, transcript) : null;
       results.push({
         model: "GPT-4o Audio",
         wer,
         latency,
-        codeSwitchAccuracy: wer === 0 ? 0.85 : Math.max(0, 1 - wer),
-        costPerMinute: 0.15,
+        costPerMinute: 0.006,
         transcript,
       });
     } catch (e) {
@@ -161,8 +153,7 @@ export async function POST(req: NextRequest) {
         model: "GPT-4o Audio",
         wer: 1,
         latency: 0,
-        codeSwitchAccuracy: 0,
-        costPerMinute: 0.15,
+        costPerMinute: 0.006,
         error: message,
       });
     }

@@ -4,7 +4,8 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 
-const SAHARA_API_KEY = 'HE1hzy5i4-S1h8qdTgvAtzQe7MDi7Who2h_wAV1xxDAetU9BGygfb8MGGyXuBNwfQmtYi_EQeMnEUG8eL5MCzg';
+const SAHARA_API_KEY = process.env.SAHARA_API_KEY;
+if (!SAHARA_API_KEY) throw new Error('Set SAHARA_API_KEY env var');
 const OUTPUT_DIR = 'C:\\Users\\USER\\Downloads\\mlc hackathon\\app\\public\\demo-video\\audio';
 const INTRON_VOICE_BASE = 'https://infer.voice.intron.io';
 

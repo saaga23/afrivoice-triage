@@ -14,8 +14,7 @@
 
 - **Frontend:** Next.js 14, TypeScript, Tailwind CSS v4, shadcn/ui
 - **Backend:** Next.js API Routes
-- **AI:** LangChain + LangGraph for agentic reasoning, Intron Sahara v2 for STT/TTS
-- **Database:** (planned) PostgreSQL + Prisma
+- **AI:** LangChain + LangGraph for agentic reasoning, Intron Sahara v2 for STT/TTS, OpenAI (Whisper, GPT-4o Transcribe, LLM fallback)
 
 ## 📁 Structure
 
@@ -24,8 +23,10 @@ app/
 ├── src/
 │   ├── app/
 │   │   ├── api/
-│   │   │   └── chat/
-│   │   │       └── route.ts       # Chat endpoint
+│   │   │   ├── chat/
+│   │   │   │   └── route.ts       # Chat endpoint (STT → agent → TTS)
+│   │   │   └── bench/
+│   │   │       └── route.ts       # 3-model benchmark endpoint
 │   │   ├── bench/
 │   │   │   └── page.tsx           # Benchmark page
 │   │   ├── globals.css
@@ -51,13 +52,13 @@ Builds a voice-driven patient **triage assistant** that:
 
 ## 📊 Benchmark
 
-Benchmarks ≥3 models on code-switched audio:
+Benchmarks 3 models on code-switched audio (see `docs/BENCHMARK.md` for the full report):
 1. **Intron Sahara v2** (primary)
-2. OpenAI **Whisper Large v3**
-3. OpenAI **GPT-4o Audio**
+2. OpenAI **Whisper** (`whisper-1`)
+3. OpenAI **GPT-4o Transcribe**
 
-Metrics: WER, Code-switch accuracy, Latency, Cost
-Dataset: AfriSwitch (20.40 hours, 5 language pairs)
+Metrics: WER, Latency, Cost
+Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances) + 6 synthetic code-switched health samples
 
 ## 🏆 Judging Criteria
 
@@ -70,10 +71,15 @@ Dataset: AfriSwitch (20.40 hours, 5 language pairs)
 ## 📝 Deliverables
 
 - [x] Solution code (this repo)
-- [ ] Demo video
-- [ ] Benchmark report
-- [ ] Ethics/inclusion note
-- [ ] Audio samples with metadata
+- [x] Demo video (`public/demo-video/afrivoice-demo.mp4`)
+- [x] Benchmark report (`docs/BENCHMARK.md`)
+- [x] Ethics/inclusion note (`docs/ETHICS.md`)
+- [x] Audio samples with metadata (`public/data/`)
+
+## 🔗 Live Demo
+
+- App: https://app-phi-one-ah0g1z34ov.vercel.app
+- Benchmark page: https://app-phi-one-ah0g1z34ov.vercel.app/bench
 
 ## 🔗 Resources
 

@@ -3,13 +3,11 @@
   "description": "Synthetic code-switched audio samples generated using Intron Sahara TTS for demo and benchmarking purposes.",
   "total_samples": 6,
   "languages": [
-    "swahili-english",
-    "pidgin-english",
-    "yoruba-english",
     "hausa-english",
-    "shona-english",
     "kinyarwanda-english",
-    "chichewa-english"
+    "shona-english",
+    "swahili-english",
+    "yoruba-english"
   ],
   "generated_at": "2026-08-05T06:04:05.234Z",
   "samples": [
@@ -26,7 +24,7 @@
     {
       "id": "sample-04",
       "language": "hausa-english",
-      "text": "Ina dauwa da zazzaɓar jiki. Please I need urgent care, my temperature is very high."
+      "text": "Ina dauwa da zazza\u00c9\u201car jiki. Please I need urgent care, my temperature is very high."
     },
     {
       "id": "sample-05",
@@ -43,5 +41,6 @@
       "language": "kinyarwanda-english",
       "text": "Ndebwe n'induru. Please help me, I need medicine for my headache."
     }
-  ]
+  ],
+  "note": "sample-02 was dropped during generation; 6 samples total. All samples are synthetic (Sahara TTS), studio-quality, no background noise, health domain."
 }

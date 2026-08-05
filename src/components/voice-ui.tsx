@@ -19,18 +19,30 @@ type Message = {
   timestamp: Date;
 };
 
-export function VoiceRecorder({ onSendAudio }: { onSendAudio?: (audioBlob: Blob) => void }) {
+export function VoiceRecorder({ onSendAudio, disabled }: { onSendAudio?: (audioBlob: Blob) => void; disabled?: boolean }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const mimeTypeRef = useRef<string>("audio/webm");
 
   const startRecording = async () => {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      alert("Voice recording is not supported in this browser");
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const mediaRecorder = new MediaRecorder(stream);
+      const mimeType = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4",
+        "audio/aac",
+      ].find((t) => MediaRecorder.isTypeSupported(t));
+      const mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      mimeTypeRef.current = mimeType || "audio/webm";
       chunksRef.current = [];
 
       mediaRecorder.ondataavailable = (event) => {
@@ -40,7 +52,7 @@ export function VoiceRecorder({ onSendAudio }: { onSendAudio?: (audioBlob: Blob)
       };
 
       mediaRecorder.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const blob = new Blob(chunksRef.current, { type: mimeTypeRef.current });
         if (onSendAudio) {
           setIsProcessing(true);
           await onSendAudio(blob);
@@ -78,7 +90,8 @@ export function VoiceRecorder({ onSendAudio }: { onSendAudio?: (audioBlob: Blob)
       {!isRecording ? (
         <Button
           onClick={startRecording}
-          disabled={isProcessing}
+          disabled={isProcessing || disabled}
+          title={disabled ? "Voice input declined — text-only mode" : "Record a voice message"}
           className="rounded-full w-12 h-12 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
           size="icon"
         >
@@ -106,6 +119,7 @@ export function ChatInterface() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
+  const [voiceDeclined, setVoiceDeclined] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -115,7 +129,7 @@ export function ChatInterface() {
     }
   };
 
-  const processResponse = async (userContent: string, audioBase64?: string) => {
+  const processResponse = async (userContent: string, audioBase64?: string, userMessageId?: string) => {
     setIsLoading(true);
     try {
       const res = await fetch("/api/chat", {
@@ -126,6 +140,16 @@ export function ChatInterface() {
 
       if (!res.ok) throw new Error("Failed to get response");
       const data = await res.json();
+
+      if (userMessageId && data.transcription) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === userMessageId
+              ? { ...m, content: data.transcription, transcription: data.transcription }
+              : m
+          )
+        );
+      }
 
       setMessages((prev) => [
         ...prev,
@@ -173,12 +197,11 @@ export function ChatInterface() {
         id: `user-${Date.now()}`,
         role: "user",
         content: "Voice message...",
-        transcription: base64,
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, userMessage]);
-      await processResponse("", base64);
+      await processResponse("", base64, userMessage.id);
     };
     reader.readAsDataURL(blob);
   };
@@ -235,7 +258,7 @@ export function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full">
-      {!consentGiven && (
+      {!consentGiven && !voiceDeclined && (
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="max-w-md p-6 space-y-4 border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Consent Required</h3>
@@ -250,15 +273,15 @@ export function ChatInterface() {
               <Button onClick={() => setConsentGiven(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 I Agree
               </Button>
-              <Button variant="outline" onClick={() => setConsentGiven(false)} className="border-amber-300 text-amber-700 hover:bg-amber-100">
-                Decline
+              <Button variant="outline" onClick={() => setVoiceDeclined(true)} className="border-amber-300 text-amber-700 hover:bg-amber-100">
+                Decline (text only)
               </Button>
             </div>
           </Card>
         </div>
       )}
 
-      {consentGiven && (
+      {(consentGiven || voiceDeclined) && (
         <>
           <ScrollArea className="flex-1 px-4 py-4" ref={scrollRef}>
         <div className="space-y-4">
@@ -354,7 +377,7 @@ export function ChatInterface() {
 
       <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <VoiceRecorder onSendAudio={handleSendAudio} />
+          <VoiceRecorder onSendAudio={handleSendAudio} disabled={voiceDeclined && !consentGiven} />
           <input
             type="text"
             value={input}

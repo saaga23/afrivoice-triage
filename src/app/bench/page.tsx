@@ -8,10 +8,9 @@ import { Play, Loader2, BarChart3 } from "lucide-react";
 
 type BenchmarkResult = {
   model: string;
-  wer: number;
+  wer: number | null;
   latency: number;
-  codeSwitchAccuracy: number;
-  costPerMinute: number;
+  costPerMinute: number | null;
   transcript?: string;
   error?: string;
 };
@@ -43,7 +42,7 @@ export default function BenchmarkPage() {
         setResults(data.results || []);
       } catch (error) {
         console.error("Benchmark error:", error);
-        setResults([{ model: "Error", wer: 1, latency: 0, codeSwitchAccuracy: 0, costPerMinute: 0, error: "Failed to run benchmark" }]);
+        setResults([{ model: "Error", wer: null, latency: 0, costPerMinute: null, error: "Failed to run benchmark" }]);
       } finally {
         setIsRunning(false);
       }
@@ -140,7 +139,6 @@ export default function BenchmarkPage() {
                       <th className="py-2 font-medium">Transcript</th>
                       <th className="py-2 font-medium">WER</th>
                       <th className="py-2 font-medium">Latency</th>
-                      <th className="py-2 font-medium">Code-Switch Accuracy</th>
                       <th className="py-2 font-medium">Cost/min</th>
                     </tr>
                   </thead>
@@ -152,19 +150,21 @@ export default function BenchmarkPage() {
                           {r.transcript ? r.transcript.slice(0, 80) + (r.transcript.length > 80 ? "..." : "") : r.error || "—"}
                         </td>
                         <td className="py-3">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono">{(r.wer * 100).toFixed(1)}%</span>
-                            {renderBar(r.wer, 1, true)}
-                          </div>
+                          {r.wer === null ? (
+                            <span className="text-gray-400">—</span>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono">{(r.wer * 100).toFixed(1)}%</span>
+                              {renderBar(r.wer, 1, true)}
+                            </div>
+                          )}
                         </td>
                         <td className="py-3">{r.latency.toFixed(2)}s</td>
                         <td className="py-3">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono">{(r.codeSwitchAccuracy * 100).toFixed(0)}%</span>
-                            {renderBar(r.codeSwitchAccuracy, 1, false)}
-                          </div>
+                          {r.costPerMinute === null
+                            ? (r.model === "Sahara v2" ? "Contact Intron" : "—")
+                            : `$${r.costPerMinute.toFixed(3)}`}
                         </td>
-                        <td className="py-3">{r.costPerMinute === 0 ? "Free" : `$${r.costPerMinute.toFixed(2)}`}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -181,9 +181,9 @@ export default function BenchmarkPage() {
           <Card className="p-6">
             <h3 className="text-xl font-semibold mb-4">Benchmark Methodology</h3>
             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-              <p>Models compared: Intron Sahara v2, OpenAI Whisper Large v3, OpenAI GPT-4o Audio</p>
+              <p>Models compared: Intron Sahara v2, OpenAI Whisper (whisper-1), OpenAI GPT-4o Audio</p>
               <p>Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances)</p>
-              <p>Metrics: WER, Code-switch accuracy, Latency, Cost per minute</p>
+              <p>Metrics: WER, Latency, Cost per minute</p>
               <p>Conditions: In-the-wild conversational speech, multiple African accents</p>
             </div>
           </Card>

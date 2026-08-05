@@ -9,5 +9,8 @@
   "generated_at": "2026-08-05T06:04:50.453Z",
   "code_switch": "en",
   "cmi": 0.22,
-  "duration_estimate": 8
+  "duration_estimate": 8,
+  "domain": "health",
+  "device_type": "synthetic (Sahara TTS, studio quality)",
+  "noise_conditions": "clean, no background noise"
 }

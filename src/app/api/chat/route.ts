@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey = process.env.SAHARA_API_KEY;
-    if (!apiKey) {
+    if (audio && !apiKey) {
       return NextResponse.json(
-        { error: "Server misconfigured: SAHARA_API_KEY missing" },
+        { error: "Server misconfigured: SAHARA_API_KEY missing (required for voice input)" },
         { status: 500 }
       );
     }

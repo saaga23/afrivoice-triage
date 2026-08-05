@@ -1,6 +1,20 @@
 # AfriVoice Triage — Agentic Voice AI for African Healthcare
 
+**An agentic voice pipeline, not a transcription demo:** patients speak in any mix of English, Swahili, Yoruba, Hausa, Igbo, Pidgin, Shona, or Kinyarwanda — Sahara transcribes the code-switched speech, a LangGraph agent classifies intent and urgency (with a multilingual emergency safety net), and responds with voice plus a structured triage handoff card.
+
 **Submission for:** MLC (Africa) × Intron Agentic Voice AI Challenge 2026
+
+🎬 [Demo video](#-demo-video) · 🌐 [Live app](https://app-phi-one-ah0g1z34ov.vercel.app) · 📊 [Benchmark report](docs/BENCHMARK.md) · 🧪 [Live benchmark runner](https://app-phi-one-ah0g1z34ov.vercel.app/bench)
+
+### Headline benchmark result (WER, lower is better — code-switched health audio)
+
+| Model | WER |
+|---|---|
+| **Intron Sahara v2** | **0.347** |
+| Whisper large-v3 | 0.450 |
+| wav2vec2 XLS-R-53 | 0.604 |
+
+> On Hausa–English speech, Whisper large-v3 **silently deleted the entire Hausa segment** of an urgent-care utterance — in triage, a silent deletion is worse than a wrong word. Sahara kept both language spans. Full methodology: [docs/BENCHMARK.md](docs/BENCHMARK.md).
 
 ## 🚀 Quick Start
 
@@ -59,10 +73,12 @@ Builds a voice-driven patient **triage assistant** that:
 
 ## 📊 Benchmark
 
-Benchmarks 3 models on code-switched audio (see `docs/BENCHMARK.md` for the full report):
-1. **Intron Sahara v2** (primary)
-2. OpenAI **Whisper** (`whisper-1`)
-3. OpenAI **GPT-4o Transcribe**
+Three-way benchmark on code-switched audio (see `docs/BENCHMARK.md` for the full report):
+1. **Intron Sahara v2** (primary, API)
+2. **Whisper large-v3** (faster-whisper, open-source)
+3. **wav2vec2 XLS-R-53** (open-source)
+
+The live `/bench` page also offers an in-browser runner against Sahara v2, OpenAI `whisper-1`, and `gpt-4o-transcribe` (requires API keys).
 
 Metrics: WER, Latency, Cost
 Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances) + 6 synthetic code-switched health samples
@@ -87,6 +103,10 @@ Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances) + 6 synt
 
 - App: https://app-phi-one-ah0g1z34ov.vercel.app
 - Benchmark page: https://app-phi-one-ah0g1z34ov.vercel.app/bench
+
+## 🛣️ Continuation
+
+AfriVoice Triage does not end with this submission: it is the foundation of our entry into the **Sahara Switch Africa Challenge (starting Oct 1)**, where the same code-switched agentic pipeline will be extended to more languages, more verticals (fintech, agri, legal), and on-device deployment for low-bandwidth clinics.
 
 ## 🔗 Resources
 

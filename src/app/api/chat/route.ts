@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         transcription: state.transcription,
         intent: state.intent,
+        urgency: state.urgency,
+        triageSummary: state.triageSummary,
         response: state.response,
         toolCalls: state.toolCalls,
         audioUrl: state.audioUrl,
@@ -44,6 +46,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       transcription: message,
       intent: state.intent,
+      urgency: state.urgency,
+      triageSummary: state.triageSummary,
       response: state.response,
       toolCalls: state.toolCalls,
       audioUrl: state.audioUrl,

@@ -58,20 +58,20 @@ export async function POST(req: NextRequest) {
       } else {
         results.push({
           model: "Sahara v2",
-          wer: 1,
+          wer: null,
           latency: 0,
           costPerMinute: null,
-          error: "No SAHARA_API_KEY configured",
+          error: "not_configured",
         });
       }
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Sahara failed";
+      console.error("Sahara bench error", e);
       results.push({
         model: "Sahara v2",
-        wer: 1,
+        wer: null,
         latency: 0,
         costPerMinute: null,
-        error: message,
+        error: "upstream_error",
       });
     }
 
@@ -103,58 +103,68 @@ export async function POST(req: NextRequest) {
         } else {
           results.push({
             model: "Whisper (whisper-1)",
-            wer: 1,
+            wer: null,
             latency,
-            costPerMinute: 0.006,
-            error: `HTTP ${whisperRes.status}`,
+            costPerMinute: null,
+            error: "not_configured",
           });
         }
       } else {
         results.push({
           model: "Whisper (whisper-1)",
-          wer: 1,
+          wer: null,
           latency: 0,
-          costPerMinute: 0.006,
-          error: "No OPENAI_API_KEY configured",
+          costPerMinute: null,
+          error: "not_configured",
         });
       }
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Whisper failed";
+      console.error("Whisper bench error", e);
       results.push({
         model: "Whisper (whisper-1)",
-        wer: 1,
+        wer: null,
         latency: 0,
-        costPerMinute: 0.006,
-        error: message,
+        costPerMinute: null,
+        error: "upstream_error",
       });
     }
 
     // GPT-4o Audio
     try {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const start = performance.now();
-      const transcription = await openai.audio.transcriptions.create({
-        file: new File([blob], "audio.webm", { type: "audio/webm" }),
-        model: "gpt-4o-transcribe",
-      });
-      const latency = (performance.now() - start) / 1000;
-      const transcript = transcription.text || "";
-      const wer = referenceText ? computeWER(referenceText, transcript) : null;
-      results.push({
-        model: "GPT-4o Audio",
-        wer,
-        latency,
-        costPerMinute: 0.006,
-        transcript,
-      });
+      if (process.env.OPENAI_API_KEY) {
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const start = performance.now();
+        const transcription = await openai.audio.transcriptions.create({
+          file: new File([blob], "audio.webm", { type: "audio/webm" }),
+          model: "gpt-4o-transcribe",
+        });
+        const latency = (performance.now() - start) / 1000;
+        const transcript = transcription.text || "";
+        const wer = referenceText ? computeWER(referenceText, transcript) : null;
+        results.push({
+          model: "GPT-4o Audio",
+          wer,
+          latency,
+          costPerMinute: 0.006,
+          transcript,
+        });
+      } else {
+        results.push({
+          model: "GPT-4o Audio",
+          wer: null,
+          latency: 0,
+          costPerMinute: null,
+          error: "not_configured",
+        });
+      }
     } catch (e) {
-      const message = e instanceof Error ? e.message : "GPT-4o Audio failed";
+      console.error("GPT-4o bench error", e);
       results.push({
         model: "GPT-4o Audio",
-        wer: 1,
+        wer: null,
         latency: 0,
-        costPerMinute: 0.006,
-        error: message,
+        costPerMinute: null,
+        error: "upstream_error",
       });
     }
 

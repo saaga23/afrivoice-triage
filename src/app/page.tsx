@@ -13,7 +13,7 @@ export default function Home() {
             <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
               <Activity className="w-5 h-5 text-white" />
             </div>
-            <span className="font-semibold text-lg tracking-tight">AfriVoice Triage</span>
+            <span className="font-semibold text-lg tracking-tight whitespace-nowrap">AfriVoice Triage</span>
           </div>
           <nav className="flex items-center gap-3">
             <a
@@ -21,6 +21,14 @@ export default function Home() {
               className="inline-flex items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] hover:bg-muted hover:text-foreground dark:hover:bg-muted/50"
             >
               Benchmark
+            </a>
+            <a
+              href="https://github.com/saaga23/afrivoice-triage"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] hover:bg-muted hover:text-foreground dark:hover:bg-muted/50"
+            >
+              Source
             </a>
             <a
               href="#demo"
@@ -38,7 +46,7 @@ export default function Home() {
           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-teal-200/20 dark:bg-teal-900/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="container mx-auto px-4 pt-16 pb-12">
+        <div className="container mx-auto px-4 pt-10 pb-8">
           <div className="max-w-3xl mx-auto text-center">
             <Badge variant="secondary" className="mb-4">
               <Zap className="w-3 h-3 mr-1" />
@@ -63,7 +71,7 @@ export default function Home() {
               </Badge>
               <Badge variant="outline" className="gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                HIPAA-Ready
+                Privacy-first
               </Badge>
               <Badge variant="outline" className="gap-1.5">
                 <Activity className="w-3.5 h-3.5" />
@@ -96,7 +104,7 @@ export default function Home() {
                     <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Online</span>
                   </div>
                 </div>
-                <div className="h-[520px]">
+                <div className="h-[480px]">
                   <ChatInterface />
                 </div>
               </div>
@@ -183,7 +191,17 @@ export default function Home() {
       <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/60 backdrop-blur">
         <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-400">
           <p>AfriVoice Triage — MLC Africa × Intron Agentic Voice AI Challenge 2026</p>
-          <p>Built with Next.js, LangGraph, and Intron Sahara</p>
+          <p>
+            Built with Next.js, LangGraph, and Intron Sahara ·{" "}
+            <a
+              href="https://github.com/saaga23/afrivoice-triage"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-emerald-600 dark:hover:text-emerald-400"
+            >
+              Source on GitHub
+            </a>
+          </p>
         </div>
       </footer>
     </main>

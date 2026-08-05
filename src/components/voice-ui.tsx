@@ -7,6 +7,13 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+type TriageSummary = {
+  symptoms: string;
+  urgency: "low" | "moderate" | "high" | "emergency";
+  recommended_action: string;
+  not_a_diagnosis: boolean;
+};
+
 type Message = {
   id: string;
   role: "user" | "assistant";
@@ -16,6 +23,7 @@ type Message = {
   urgency?: string;
   toolCalls?: string[];
   audioUrl?: string;
+  triageSummary?: TriageSummary;
   timestamp: Date;
 };
 
@@ -92,6 +100,7 @@ export function VoiceRecorder({ onSendAudio, disabled }: { onSendAudio?: (audioB
           onClick={startRecording}
           disabled={isProcessing || disabled}
           title={disabled ? "Voice input declined — text-only mode" : "Record a voice message"}
+          aria-label={disabled ? "Voice input declined — text-only mode" : "Record a voice message"}
           className="rounded-full w-12 h-12 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
           size="icon"
         >
@@ -102,13 +111,19 @@ export function VoiceRecorder({ onSendAudio, disabled }: { onSendAudio?: (audioB
           )}
         </Button>
       ) : (
-        <Button
-          onClick={stopRecording}
-          className="rounded-full w-12 h-12 bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 animate-pulse"
-          size="icon"
-        >
-          <Square className="w-5 h-5" />
-        </Button>
+        <>
+          <Button
+            onClick={stopRecording}
+            aria-label="Stop recording and send"
+            className="rounded-full w-12 h-12 bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 animate-pulse"
+            size="icon"
+          >
+            <Square className="w-5 h-5" />
+          </Button>
+          <span className="text-xs font-medium text-red-600 dark:text-red-400 whitespace-nowrap" role="status">
+            ● Recording — tap to stop
+          </span>
+        </>
       )}
     </div>
   );
@@ -141,11 +156,17 @@ export function ChatInterface() {
       if (!res.ok) throw new Error("Failed to get response");
       const data = await res.json();
 
-      if (userMessageId && data.transcription) {
+      if (userMessageId) {
         setMessages((prev) =>
           prev.map((m) =>
             m.id === userMessageId
-              ? { ...m, content: data.transcription, transcription: data.transcription }
+              ? {
+                  ...m,
+                  content: data.transcription
+                    ? data.transcription
+                    : "(couldn't transcribe — please try again or type)",
+                  transcription: data.transcription || undefined,
+                }
               : m
           )
         );
@@ -159,9 +180,10 @@ export function ChatInterface() {
           content: data.response,
           transcription: data.transcription,
           intent: data.intent,
-          urgency: classifyUrgency(data.intent, data.response),
+          urgency: data.urgency || classifyUrgency(data.intent, data.response),
           toolCalls: data.toolCalls,
           audioUrl: data.audioUrl,
+          triageSummary: data.triageSummary,
           timestamp: new Date(),
         },
       ]);
@@ -250,6 +272,7 @@ export function ChatInterface() {
   }, [messages]);
 
   const urgencyColor = (urgency?: string) => {
+    if (urgency === "emergency") return "bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700";
     if (urgency === "high") return "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800";
     if (urgency === "moderate") return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800";
     if (urgency === "low") return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800";
@@ -260,7 +283,7 @@ export function ChatInterface() {
     <div className="flex flex-col h-full">
       {!consentGiven && !voiceDeclined && (
         <div className="flex-1 flex items-center justify-center p-6">
-          <Card className="max-w-md p-6 space-y-4 border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
+          <Card role="dialog" aria-modal="true" aria-label="Voice consent" className="max-w-md p-6 space-y-4 border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Consent Required</h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               This application records voice for medical triage purposes. Audio is processed temporarily and not stored.
@@ -294,8 +317,9 @@ export function ChatInterface() {
                 Start a consultation
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
-                Tap the microphone and describe your symptoms in any language. Our agent will triage
-                your case.
+                {voiceDeclined && !consentGiven
+                  ? "Type your symptoms below in any language. Our agent will triage your case."
+                  : "Tap the microphone and describe your symptoms in any language. Our agent will triage your case."}
               </p>
             </div>
           )}
@@ -321,7 +345,7 @@ export function ChatInterface() {
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {message.intent && (
                           <Badge key={`intent-${message.intent}`} variant="secondary" className="text-xs">
-                            {message.intent}
+                            {message.intent.replace(/_/g, " ")}
                           </Badge>
                         )}
                         {message.urgency && (
@@ -333,11 +357,30 @@ export function ChatInterface() {
                             {message.urgency} urgency
                           </Badge>
                         )}
-                        {message.toolCalls?.map((tool) => (
+                        {[...new Set(message.toolCalls ?? [])].map((tool) => (
                           <Badge key={`tool-${tool}`} variant="outline" className="text-xs">
                             {tool}
                           </Badge>
                         ))}
+                      </div>
+                    )}
+                    {message.triageSummary && (
+                      <div className="mt-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/40 p-3 space-y-1">
+                        <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-200">
+                          Triage summary — handoff card
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-300">
+                          <span className="font-medium">Symptoms:</span> {message.triageSummary.symptoms}
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-300">
+                          <span className="font-medium">Urgency:</span> {message.triageSummary.urgency}
+                          {" · "}
+                          <span className="font-medium">Action:</span>{" "}
+                          {message.triageSummary.recommended_action.replace(/_/g, " ")}
+                        </p>
+                        <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                          Not a diagnosis — share with a healthcare professional.
+                        </p>
                       </div>
                     )}
                   </div>
@@ -383,6 +426,7 @@ export function ChatInterface() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Describe your symptoms..."
+            aria-label="Describe your symptoms"
             className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:text-slate-100 dark:placeholder:text-slate-500"
             disabled={isLoading}
           />
@@ -390,6 +434,7 @@ export function ChatInterface() {
             type="submit"
             disabled={isLoading || !input.trim()}
             size="icon"
+            aria-label="Send message"
             className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
           >
             <Send className="w-4 h-4" />

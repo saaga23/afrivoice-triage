@@ -147,7 +147,15 @@ export default function BenchmarkPage() {
                       <tr key={r.model} className="border-b">
                         <td className="py-3 font-medium">{r.model}</td>
                         <td className="py-3 max-w-xs truncate text-xs text-gray-500" title={r.transcript}>
-                          {r.transcript ? r.transcript.slice(0, 80) + (r.transcript.length > 80 ? "..." : "") : r.error || "—"}
+                          {r.transcript ? (
+                            r.transcript.slice(0, 80) + (r.transcript.length > 80 ? "..." : "")
+                          ) : r.error ? (
+                            <span className="inline-block rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 px-2 py-0.5 text-xs">
+                              Unavailable — API key not configured
+                            </span>
+                          ) : (
+                            "—"
+                          )}
                         </td>
                         <td className="py-3">
                           {r.wer === null ? (
@@ -159,10 +167,10 @@ export default function BenchmarkPage() {
                             </div>
                           )}
                         </td>
-                        <td className="py-3">{r.latency.toFixed(2)}s</td>
+                        <td className="py-3">{r.error ? <span className="text-gray-400">—</span> : `${r.latency.toFixed(2)}s`}</td>
                         <td className="py-3">
                           {r.costPerMinute === null
-                            ? (r.model === "Sahara v2" ? "Contact Intron" : "—")
+                            ? (r.model === "Sahara v2" && !r.error ? "not published" : "—")
                             : `$${r.costPerMinute.toFixed(3)}`}
                         </td>
                       </tr>
@@ -181,13 +189,13 @@ export default function BenchmarkPage() {
           <Card className="p-6">
             <h3 className="text-xl font-semibold mb-4">Benchmark Methodology</h3>
             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-              <p>Models compared: Intron Sahara v2, OpenAI Whisper (whisper-1), OpenAI GPT-4o Audio</p>
+              <p>Live runner models: Intron Sahara v2, OpenAI Whisper (whisper-1), OpenAI GPT-4o Audio (gpt-4o-transcribe)</p>
               <p>Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances)</p>
               <p>Metrics: WER, Latency, Cost per minute</p>
               <p>Conditions: In-the-wild conversational speech, multiple African accents</p>
               <p className="pt-2">
-                Full 3-model report with real measured results (Sahara v2 vs Whisper large-v3 vs wav2vec2 XLS-R on
-                code-switched health audio):{" "}
+                Full 3-model offline report — Sahara v2 vs Whisper large-v3 vs wav2vec2 XLS-R on
+                code-switched health audio:{" "}
                 <a
                   href="https://github.com/saaga23/afrivoice-triage/blob/master/docs/BENCHMARK.md"
                   target="_blank"

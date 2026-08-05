@@ -9,7 +9,7 @@ metadata.
 
 | Config | Local Subset | Source Test Split | Features |
 |--------|--------------|-------------------|----------|
-| Swahili–English | 20 | 1,000 | audio, transcription, CMI, switch points |
+| Swahili–English | 20 | 650 | audio, transcription, CMI, switch points |
 | Yoruba–English | 20 | 1,877 | same |
 | Hausa–English | 20 | 1,515 | same |
 | Igbo–English | 20 | 1,848 | same |
@@ -17,8 +17,8 @@ metadata.
 | Shona–English | 20 | 1,155 | same |
 
 Full dataset: AfriSwitch — 54.41 hours, 14 language pairs, 16,602 utterances.  
-Source: [intronhealth/AfriSwitch](https://huggingface.co/datasets/intronhealth/AfriSwitch)  
-License: CC BY NC SA 4.0 (used for non-commercial benchmark evaluation only)
+Source: [intronhealth/AfriSwitch](https://huggingface.co/datasets/intronhealth/AfriSwitch) (Intron Health)  
+License: [CC BY NC SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) (used for non-commercial benchmark evaluation only)
 
 ## Synthetic Samples
 

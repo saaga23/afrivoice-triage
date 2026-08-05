@@ -7,14 +7,71 @@ export type AgentMessage = {
   content: string;
 };
 
+export type TriageSummary = {
+  symptoms: string;
+  urgency: "low" | "moderate" | "high" | "emergency";
+  recommended_action: string;
+  not_a_diagnosis: true;
+};
+
 export type AgentState = {
   messages: AgentMessage[];
   transcription?: string;
   intent?: string;
+  urgency?: TriageSummary["urgency"];
   toolCalls?: string[];
   response?: string;
   audioUrl?: string;
+  triageSummary?: TriageSummary;
 };
+
+// Multilingual emergency terms (ASCII-folded match) across the benchmarked languages.
+// A patient who says "siwezi kupumua" (Swahili: I can't breathe) must escalate
+// exactly like "I can't breathe" — monolingual emergency detection is a safety hole.
+const EMERGENCY_TERMS = [
+  // English
+  "chest", "breath", "breathing", "bleed", "unconscious", "seizure", "choking",
+  // Swahili
+  "kupumua", "kifua", "damu nyingi", "kuzimia",
+  // Hausa
+  "jini", "numfashi", "zubar da jini", "kirin",
+  // Yoruba
+  "eje", "ẹjẹ", "imi", "ìmí",
+  // Igbo
+  "obara", "ọbara", "iku ume",
+  // Kinyarwanda
+  "guhumeka", "amaraso",
+  // Shona
+  "ropa", "kupfuma",
+  // Pidgin
+  "no fit breathe", "dey bleed",
+];
+
+const SYMPTOM_TERMS = [
+  "pain", "sick", "symptom", "headache", "fever", "migraine", "stomach", "nausea",
+  "vomit", "diarrhea", "dizzy", "cough", "ache",
+  // Swahili: pain, fever, head
+  "maumivu", "joto", "kichwa", "homa", "kizunguzungu",
+  // Hausa: pain, fever
+  "ciwo", "zazzabi", "azabtarwa",
+  // Yoruba: pain/sick
+  "iraanu", "aarun", "ori",
+];
+
+function fold(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+export function detectEmergency(text: string): boolean {
+  const f = fold(text);
+  return EMERGENCY_TERMS.some((t) => f.includes(fold(t)));
+}
+
+function computeUrgency(text: string, intent?: string): TriageSummary["urgency"] {
+  if (detectEmergency(text)) return "emergency";
+  if (intent === "triage") return "moderate";
+  return "low";
+}
 
 const SYSTEM_PROMPT = `You are a medical triage assistant for a healthcare clinic in Africa.
 You specialize in code-switched conversations (English, Swahili, Yoruba, Hausa, Amharic, Zulu, Kinyarwanda).
@@ -49,9 +106,13 @@ export class VoiceAgent {
         messages: { value: (a: unknown, b: unknown) => (Array.isArray(a) && Array.isArray(b) ? a.concat(b) : (a as AgentMessage[]).concat(b as AgentMessage[])), default: () => [] },
         transcription: { value: (a: unknown, b: unknown) => (a ?? b) as AgentState["transcription"], default: () => undefined },
         intent: { value: (a: unknown, b: unknown) => (a ?? b) as AgentState["intent"], default: () => undefined },
+        urgency: { value: (a: unknown, b: unknown) => (a ?? b) as AgentState["urgency"], default: () => undefined },
+        triageSummary: { value: (a: unknown, b: unknown) => (a ?? b) as AgentState["triageSummary"], default: () => undefined },
         toolCalls: {
-          value: (a: unknown, b: unknown) =>
-            Array.isArray(a) && Array.isArray(b) ? a.concat(b) : (a ?? b) as AgentState["toolCalls"],
+          value: (a: unknown, b: unknown) => {
+            const merged = Array.isArray(a) && Array.isArray(b) ? a.concat(b) : (a ?? b) as string[];
+            return [...new Set(merged)];
+          },
           default: () => [],
         },
         response: { value: (a: unknown, b: unknown) => (a ?? b) as AgentState["response"], default: () => undefined },
@@ -77,41 +138,40 @@ export class VoiceAgent {
             // fall through to rule-based
           }
         }
-        const lower = userText.toLowerCase();
+        const lower = fold(userText);
         let intent = "general_support";
-        if (lower.includes("pain") || lower.includes("sick") || lower.includes("maumivu") || lower.includes("joto") || lower.includes("symptom")) intent = "triage";
+        if (SYMPTOM_TERMS.some((t) => lower.includes(fold(t)))) intent = "triage";
         else if (lower.includes("book") || lower.includes("appointment") || lower.includes("schedule")) intent = "booking";
         else if (lower.includes("refill") || lower.includes("prescription")) intent = "refill";
         return { ...state, intent };
       })
       .addNode("route_to_tool", async (state: AgentState) => {
+        // Return only channel updates (partial) — full-state spreads double-apply reducers.
         if (state.intent === "triage") {
           return {
-            ...state,
             toolCalls: ["triage"],
-            messages: [
-              ...state.messages,
-              { role: "assistant", content: "I'll help assess your symptoms." },
-            ],
+            messages: [{ role: "assistant" as const, content: "I'll help assess your symptoms." }],
           };
         }
         if (state.intent === "booking") {
           return {
-            ...state,
             toolCalls: ["booking"],
-            messages: [
-              ...state.messages,
-              { role: "assistant", content: "I can help you book an appointment." },
-            ],
+            messages: [{ role: "assistant" as const, content: "I can help you book an appointment." }],
           };
         }
-        return {
-          ...state,
-          toolCalls: [],
-          messages: [...state.messages],
-        };
+        return { toolCalls: [] };
       })
       .addNode("generate_response", async (state: AgentState) => {
+        const lastUser = state.messages.filter(m => m.role === "user").pop()?.content || state.transcription || "";
+        const urgency = computeUrgency(lastUser, state.intent);
+        const triageSummary: TriageSummary | undefined = state.intent === "triage" ? {
+          symptoms: lastUser.slice(0, 300),
+          urgency,
+          recommended_action: urgency === "emergency"
+            ? "seek_immediate_care"
+            : "collect_more_symptoms_then_advise",
+          not_a_diagnosis: true,
+        } : undefined;
         if (this.llm) {
           try {
             const completion = await this.llm.chat.completions.create({
@@ -123,20 +183,21 @@ export class VoiceAgent {
             });
             const response = completion.choices[0]?.message?.content?.trim() || "I'm sorry, I didn't catch that.";
             return {
-              ...state,
               response,
-              messages: [...state.messages, { role: "assistant", content: response }],
+              urgency,
+              triageSummary,
+              messages: [{ role: "assistant" as const, content: response }],
             };
           } catch {
             // fall through to rule-based
           }
         }
-        const lastUser = state.messages.filter(m => m.role === "user").pop()?.content || "";
         const response = ruleBasedResponse(lastUser, state.intent);
         return {
-          ...state,
           response,
-          messages: [...state.messages, { role: "assistant", content: response }],
+          urgency,
+          triageSummary,
+          messages: [{ role: "assistant" as const, content: response }],
         };
       })
       .addEdge("__start__", "classify_intent")
@@ -195,9 +256,10 @@ export class VoiceAgent {
 }
 
 function ruleBasedResponse(userText: string, intent?: string): string {
-  const lower = userText.toLowerCase();
-  if (intent === "triage" || lower.includes("pain") || lower.includes("maumivu") || lower.includes("sick") || lower.includes("joto")) {
-    if (lower.includes("chest") || lower.includes("breath") || lower.includes("bleeding")) {
+  const lower = fold(userText);
+  const hasSymptom = SYMPTOM_TERMS.some((t) => lower.includes(fold(t)));
+  if (intent === "triage" || hasSymptom) {
+    if (detectEmergency(userText)) {
       return "This sounds like a medical emergency. Please seek immediate care at the nearest hospital or call emergency services.";
     }
     return "I understand you're not feeling well. Can you tell me more about your symptoms? How long have you been feeling this way?";

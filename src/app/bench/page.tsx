@@ -185,6 +185,18 @@ export default function BenchmarkPage() {
               <p>Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances)</p>
               <p>Metrics: WER, Latency, Cost per minute</p>
               <p>Conditions: In-the-wild conversational speech, multiple African accents</p>
+              <p className="pt-2">
+                Full 3-model report with real measured results (Sahara v2 vs Whisper large-v3 vs wav2vec2 XLS-R on
+                code-switched health audio):{" "}
+                <a
+                  href="https://github.com/saaga23/afrivoice-triage/blob/master/docs/BENCHMARK.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-700 dark:text-green-400 underline font-medium"
+                >
+                  docs/BENCHMARK.md
+                </a>
+              </p>
             </div>
           </Card>
         </div>

@@ -1,0 +1,361 @@
+{
+  "generated_at": "2026-08-05T18:00:41Z",
+  "runner": "kaggle-gpu",
+  "models_run": [
+    "sahara-v2",
+    "wav2vec2-xlsr-53-en",
+    "whisper-large-v3"
+  ],
+  "summary": [
+    {
+      "model": "sahara-v2",
+      "n": 6,
+      "mean_wer": 0.3467,
+      "median_wer": 0.3413,
+      "mean_latency_s": 8.69,
+      "errors": 0
+    },
+    {
+      "model": "wav2vec2-xlsr-53-en",
+      "n": 6,
+      "mean_wer": 0.6043,
+      "median_wer": 0.5817,
+      "mean_latency_s": 1.69,
+      "errors": 0
+    },
+    {
+      "model": "whisper-large-v3",
+      "n": 6,
+      "mean_wer": 0.45,
+      "median_wer": 0.4423,
+      "mean_latency_s": 31.79,
+      "errors": 0
+    }
+  ],
+  "per_language": [
+    {
+      "model": "sahara-v2",
+      "language": "hausa",
+      "n": 1,
+      "mean_wer": 0.375
+    },
+    {
+      "model": "sahara-v2",
+      "language": "kinyarwanda",
+      "n": 1,
+      "mean_wer": 0.1667
+    },
+    {
+      "model": "sahara-v2",
+      "language": "shona",
+      "n": 2,
+      "mean_wer": 0.3462
+    },
+    {
+      "model": "sahara-v2",
+      "language": "swahili",
+      "n": 1,
+      "mean_wer": 0.2353
+    },
+    {
+      "model": "sahara-v2",
+      "language": "yoruba",
+      "n": 1,
+      "mean_wer": 0.6111
+    },
+    {
+      "model": "wav2vec2-xlsr-53-en",
+      "language": "hausa",
+      "n": 1,
+      "mean_wer": 0.625
+    },
+    {
+      "model": "wav2vec2-xlsr-53-en",
+      "language": "kinyarwanda",
+      "n": 1,
+      "mean_wer": 0.5
+    },
+    {
+      "model": "wav2vec2-xlsr-53-en",
+      "language": "shona",
+      "n": 2,
+      "mean_wer": 0.6538
+    },
+    {
+      "model": "wav2vec2-xlsr-53-en",
+      "language": "swahili",
+      "n": 1,
+      "mean_wer": 0.4706
+    },
+    {
+      "model": "wav2vec2-xlsr-53-en",
+      "language": "yoruba",
+      "n": 1,
+      "mean_wer": 0.7222
+    },
+    {
+      "model": "whisper-large-v3",
+      "language": "hausa",
+      "n": 1,
+      "mean_wer": 0.375
+    },
+    {
+      "model": "whisper-large-v3",
+      "language": "kinyarwanda",
+      "n": 1,
+      "mean_wer": 0.5
+    },
+    {
+      "model": "whisper-large-v3",
+      "language": "shona",
+      "n": 2,
+      "mean_wer": 0.4615
+    },
+    {
+      "model": "whisper-large-v3",
+      "language": "swahili",
+      "n": 1,
+      "mean_wer": 0.2353
+    },
+    {
+      "model": "whisper-large-v3",
+      "language": "yoruba",
+      "n": 1,
+      "mean_wer": 0.6667
+    }
+  ],
+  "examples": [
+    {
+      "sample_id": "sample-01",
+      "language": "swahili",
+      "reference": "Ninahisi maumivu ya kichwa na joto la mwili. I think I need to see a doctor immediately.",
+      "sahara-v2": "Ninahisi Maumivu ya Kichwa Najoto Lamwili. I think I need to see a doctor immediately.",
+      "whisper-large-v3": "Nina hisi maumivu ya kichwa na jotola mwili.  I think I need to see a doctor immediately.",
+      "wav2vec2-xlsr-53-en": "nina hissi maumi vuya faturani-joctor lam willy i think i need to see a doctor immediately"
+    },
+    {
+      "sample_id": "sample-03",
+      "language": "yoruba",
+      "reference": "O ni iru ori. Mo fe lo si dokita bayi. Can you help me find a clinic nearby?",
+      "sahara-v2": "Onyi Iro, Ori Manfa, Rosi Dokitabayi, can you help me find clinic?",
+      "whisper-large-v3": "Oni iro ori manfe lusi dokita bayi, fanu help mi find klinik nearby.",
+      "wav2vec2-xlsr-53-en": "only ero ori manfer rusid to kita bai vanyo helped me find the clinic nearby"
+    },
+    {
+      "sample_id": "sample-04",
+      "language": "hausa",
+      "reference": "Ina dauwa da zazza\u00c9\u201car jiki. Please I need urgent care, my temperature is very high.",
+      "sahara-v2": "Inadawada Zazuza Ajiki, please, I need urgent care. My temperature is very high.",
+      "whisper-large-v3": "Please, I need urgent care. My temperature is very high.",
+      "wav2vec2-xlsr-53-en": "inadawdzazajiki please ai ned augientk my temperature is very high"
+    },
+    {
+      "sample_id": "sample-05",
+      "language": "shona",
+      "reference": "Umariko nkuru numwe. Ndinotoda kuenda kuna dokotira nhasi. Where is the nearest hospital?",
+      "sahara-v2": "Umariko Nkuru Numwe Engr Toda Kwienda Kuna Dokotira Letsi. Where is the nearest home?",
+      "whisper-large-v3": "Umariko mkuru numwe indi notoda kuenda kuna doko jira na si where is the nearest hospital?",
+      "wav2vec2-xlsr-53-en": "omariko kuru yumwe in dinotoda kuenda kuna dokochira si where is the nearest hospital"
+    }
+  ],
+  "per_sample": [
+    {
+      "sample_id": "sample-01",
+      "source": "synthetic",
+      "language": "swahili",
+      "model": "sahara-v2",
+      "reference": "Ninahisi maumivu ya kichwa na joto la mwili. I think I need to see a doctor immediately.",
+      "hypothesis": "Ninahisi Maumivu ya Kichwa Najoto Lamwili. I think I need to see a doctor immediately.",
+      "wer": 0.23529411764705882,
+      "latency_s": 9.94,
+      "error": null
+    },
+    {
+      "sample_id": "sample-03",
+      "source": "synthetic",
+      "language": "yoruba",
+      "model": "sahara-v2",
+      "reference": "O ni iru ori. Mo fe lo si dokita bayi. Can you help me find a clinic nearby?",
+      "hypothesis": "Onyi Iro, Ori Manfa, Rosi Dokitabayi, can you help me find clinic?",
+      "wer": 0.6111111111111112,
+      "latency_s": 9.98,
+      "error": null
+    },
+    {
+      "sample_id": "sample-04",
+      "source": "synthetic",
+      "language": "hausa",
+      "model": "sahara-v2",
+      "reference": "Ina dauwa da zazza\u00c9\u201car jiki. Please I need urgent care, my temperature is very high.",
+      "hypothesis": "Inadawada Zazuza Ajiki, please, I need urgent care. My temperature is very high.",
+      "wer": 0.375,
+      "latency_s": 8.39,
+      "error": null
+    },
+    {
+      "sample_id": "sample-05",
+      "source": "synthetic",
+      "language": "shona",
+      "model": "sahara-v2",
+      "reference": "Umariko nkuru numwe. Ndinotoda kuenda kuna dokotira nhasi. Where is the nearest hospital?",
+      "hypothesis": "Umariko Nkuru Numwe Engr Toda Kwienda Kuna Dokotira Letsi. Where is the nearest home?",
+      "wer": 0.38461538461538464,
+      "latency_s": 6.84,
+      "error": null
+    },
+    {
+      "sample_id": "sample-06",
+      "source": "synthetic",
+      "language": "shona",
+      "model": "sahara-v2",
+      "reference": "Ndi flu. Ndinokuvara mumusoro. I need some pain relievers, can you recommend something?",
+      "hypothesis": "Indeed, flu. Domdenokuvara, Momosoro, I need some pain relievers. Can you recommend some?",
+      "wer": 0.3076923076923077,
+      "latency_s": 8.86,
+      "error": null
+    },
+    {
+      "sample_id": "sample-07",
+      "source": "synthetic",
+      "language": "kinyarwanda",
+      "model": "sahara-v2",
+      "reference": "Ndebwe n'induru. Please help me, I need medicine for my headache.",
+      "hypothesis": "Ndebwe Ndendulo, please help me. I need medicine for my headache.",
+      "wer": 0.16666666666666666,
+      "latency_s": 8.11,
+      "error": null
+    },
+    {
+      "sample_id": "sample-01",
+      "source": "synthetic",
+      "language": "swahili",
+      "model": "whisper-large-v3",
+      "reference": "Ninahisi maumivu ya kichwa na joto la mwili. I think I need to see a doctor immediately.",
+      "hypothesis": "Nina hisi maumivu ya kichwa na jotola mwili.  I think I need to see a doctor immediately.",
+      "wer": 0.23529411764705882,
+      "latency_s": 32.22,
+      "error": null
+    },
+    {
+      "sample_id": "sample-03",
+      "source": "synthetic",
+      "language": "yoruba",
+      "model": "whisper-large-v3",
+      "reference": "O ni iru ori. Mo fe lo si dokita bayi. Can you help me find a clinic nearby?",
+      "hypothesis": "Oni iro ori manfe lusi dokita bayi, fanu help mi find klinik nearby.",
+      "wer": 0.6666666666666666,
+      "latency_s": 34.03,
+      "error": null
+    },
+    {
+      "sample_id": "sample-04",
+      "source": "synthetic",
+      "language": "hausa",
+      "model": "whisper-large-v3",
+      "reference": "Ina dauwa da zazza\u00c9\u201car jiki. Please I need urgent care, my temperature is very high.",
+      "hypothesis": "Please, I need urgent care. My temperature is very high.",
+      "wer": 0.375,
+      "latency_s": 30.12,
+      "error": null
+    },
+    {
+      "sample_id": "sample-05",
+      "source": "synthetic",
+      "language": "shona",
+      "model": "whisper-large-v3",
+      "reference": "Umariko nkuru numwe. Ndinotoda kuenda kuna dokotira nhasi. Where is the nearest hospital?",
+      "hypothesis": "Umariko mkuru numwe indi notoda kuenda kuna doko jira na si where is the nearest hospital?",
+      "wer": 0.5384615384615384,
+      "latency_s": 34.38,
+      "error": null
+    },
+    {
+      "sample_id": "sample-06",
+      "source": "synthetic",
+      "language": "shona",
+      "model": "whisper-large-v3",
+      "reference": "Ndi flu. Ndinokuvara mumusoro. I need some pain relievers, can you recommend something?",
+      "hypothesis": "in the flu under Nokuvara Momosoro. I need some pain relievers. Can you recommend something?",
+      "wer": 0.38461538461538464,
+      "latency_s": 30.82,
+      "error": null
+    },
+    {
+      "sample_id": "sample-07",
+      "source": "synthetic",
+      "language": "kinyarwanda",
+      "model": "whisper-large-v3",
+      "reference": "Ndebwe n'induru. Please help me, I need medicine for my headache.",
+      "hypothesis": "in the boy in your door please help me I need medicine for my headache",
+      "wer": 0.5,
+      "latency_s": 29.17,
+      "error": null
+    },
+    {
+      "sample_id": "sample-01",
+      "source": "synthetic",
+      "language": "swahili",
+      "model": "wav2vec2-xlsr-53-en",
+      "reference": "Ninahisi maumivu ya kichwa na joto la mwili. I think I need to see a doctor immediately.",
+      "hypothesis": "nina hissi maumi vuya faturani-joctor lam willy i think i need to see a doctor immediately",
+      "wer": 0.47058823529411764,
+      "latency_s": 2.0,
+      "error": null
+    },
+    {
+      "sample_id": "sample-03",
+      "source": "synthetic",
+      "language": "yoruba",
+      "model": "wav2vec2-xlsr-53-en",
+      "reference": "O ni iru ori. Mo fe lo si dokita bayi. Can you help me find a clinic nearby?",
+      "hypothesis": "only ero ori manfer rusid to kita bai vanyo helped me find the clinic nearby",
+      "wer": 0.7222222222222222,
+      "latency_s": 1.9,
+      "error": null
+    },
+    {
+      "sample_id": "sample-04",
+      "source": "synthetic",
+      "language": "hausa",
+      "model": "wav2vec2-xlsr-53-en",
+      "reference": "Ina dauwa da zazza\u00c9\u201car jiki. Please I need urgent care, my temperature is very high.",
+      "hypothesis": "inadawdzazajiki please ai ned augientk my temperature is very high",
+      "wer": 0.625,
+      "latency_s": 1.5,
+      "error": null
+    },
+    {
+      "sample_id": "sample-05",
+      "source": "synthetic",
+      "language": "shona",
+      "model": "wav2vec2-xlsr-53-en",
+      "reference": "Umariko nkuru numwe. Ndinotoda kuenda kuna dokotira nhasi. Where is the nearest hospital?",
+      "hypothesis": "omariko kuru yumwe in dinotoda kuenda kuna dokochira si where is the nearest hospital",
+      "wer": 0.5384615384615384,
+      "latency_s": 2.0,
+      "error": null
+    },
+    {
+      "sample_id": "sample-06",
+      "source": "synthetic",
+      "language": "shona",
+      "model": "wav2vec2-xlsr-53-en",
+      "reference": "Ndi flu. Ndinokuvara mumusoro. I need some pain relievers, can you recommend something?",
+      "hypothesis": "in de flu nomdenokuvra momosoro and if some paint re leavers can you recommend someting",
+      "wer": 0.7692307692307693,
+      "latency_s": 1.6,
+      "error": null
+    },
+    {
+      "sample_id": "sample-07",
+      "source": "synthetic",
+      "language": "kinyarwanda",
+      "model": "wav2vec2-xlsr-53-en",
+      "reference": "Ndebwe n'induru. Please help me, I need medicine for my headache.",
+      "hypothesis": "in debrit indianrell treese helped me i needed medicine for my headache",
+      "wer": 0.5,
+      "latency_s": 1.11,
+      "error": null
+    }
+  ]
+}

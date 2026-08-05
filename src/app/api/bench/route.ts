@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { createSaharaClient } from "@/lib/sahara";
 
 export const dynamic = "force-dynamic";
 
@@ -32,37 +33,26 @@ export async function POST(req: NextRequest) {
     }
 
     const base64Data = audio.includes(",") ? audio.split(",")[1] : audio;
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-    const blob = new Blob([bytes], { type: "audio/webm" });
-    const formData = new FormData();
-    formData.append("file", blob, "audio.webm");
+    const buffer = Buffer.from(base64Data, "base64");
+    const blob = new Blob([buffer], { type: "audio/webm" });
 
     const results: Array<{ model: string; wer: number; latency: number; codeSwitchAccuracy: number; costPerMinute: number; transcript?: string; error?: string }> = [];
 
-    // Sahara v2
+    // Sahara v2 via Intron Voice API
     try {
-      const start = performance.now();
-      const saharaForm = new FormData();
-      saharaForm.append("file", blob, "audio.webm");
-      saharaForm.append("model", "sahara-v2");
-      saharaForm.append("response_format", "json");
-      const saharaRes = await fetch("https://app.saharaai.com/developer/api/compute/v1/audio/transcriptions", {
-        method: "POST",
-        headers: { "x-api-key": process.env.SAHARA_API_KEY || "" },
-        body: saharaForm,
-      });
-      const latency = (performance.now() - start) / 1000;
-      if (saharaRes.ok) {
-        const data = await saharaRes.json();
-        const transcript = data.text || data.transcript || "";
+      const saharaApiKey = process.env.SAHARA_API_KEY;
+      if (saharaApiKey) {
+        const start = performance.now();
+        const client = createSaharaClient(saharaApiKey);
+        const transcription = await client.transcribeStream(blob, { language: "en" });
+        const latency = (performance.now() - start) / 1000;
+        const transcript = transcription.text || "";
         const wer = referenceText ? computeWER(referenceText, transcript) : 0;
         results.push({
           model: "Sahara v2",
           wer,
           latency,
-          codeSwitchAccuracy: wer === 0 ? 0.85 : Math.max(0, 1 - wer),
+          codeSwitchAccuracy: Math.max(0, 1 - wer),
           costPerMinute: 0.05,
           transcript,
         });
@@ -70,10 +60,10 @@ export async function POST(req: NextRequest) {
         results.push({
           model: "Sahara v2",
           wer: 1,
-          latency,
+          latency: 0,
           codeSwitchAccuracy: 0,
           costPerMinute: 0.05,
-          error: `HTTP ${saharaRes.status}`,
+          error: "No SAHARA_API_KEY configured",
         });
       }
     } catch (e) {
@@ -110,19 +100,19 @@ export async function POST(req: NextRequest) {
             model: "Whisper Large v3",
             wer,
             latency,
-            codeSwitchAccuracy: wer === 0 ? 0.85 : Math.max(0, 1 - wer),
+            codeSwitchAccuracy: Math.max(0, 1 - wer),
             costPerMinute: 0,
             transcript,
           });
         } else {
           results.push({
-          model: "Whisper Large v3",
-          wer: 1,
-          latency,
-          codeSwitchAccuracy: 0,
-          costPerMinute: 0,
-          error: `HTTP ${whisperRes.status}`,
-        });
+            model: "Whisper Large v3",
+            wer: 1,
+            latency,
+            codeSwitchAccuracy: 0,
+            costPerMinute: 0,
+            error: `HTTP ${whisperRes.status}`,
+          });
         }
       } else {
         results.push({
@@ -152,7 +142,7 @@ export async function POST(req: NextRequest) {
       const start = performance.now();
       const transcription = await openai.audio.transcriptions.create({
         file: new File([blob], "audio.webm", { type: "audio/webm" }),
-        model: "gpt-4o-mini-transcribe",
+        model: "gpt-4o-transcribe",
       });
       const latency = (performance.now() - start) / 1000;
       const transcript = transcription.text || "";

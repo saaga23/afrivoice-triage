@@ -1,0 +1,13 @@
+{
+  "id": "sample-01",
+  "text": "Ninahisi maumivu ya kichwa na joto la mwili. I think I need to see a doctor immediately.",
+  "language": "swahili",
+  "gender": "female",
+  "accent": "swahili",
+  "audio_file": "sample-01.wav",
+  "generated_by": "Sahara TTS (Intron Voice API)",
+  "generated_at": "2026-08-05T06:04:15.066Z",
+  "code_switch": "en",
+  "cmi": 0.35,
+  "duration_estimate": 8
+}

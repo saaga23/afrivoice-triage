@@ -1,0 +1,13 @@
+{
+  "id": "sample-05",
+  "text": "Umariko nkuru numwe. Ndinotoda kuenda kuna dokotira nhasi. Where is the nearest hospital?",
+  "language": "shona",
+  "gender": "female",
+  "accent": "shona",
+  "audio_file": "sample-05.wav",
+  "generated_by": "Sahara TTS (Intron Voice API)",
+  "generated_at": "2026-08-05T06:04:38.633Z",
+  "code_switch": "en",
+  "cmi": 0.35,
+  "duration_estimate": 10
+}

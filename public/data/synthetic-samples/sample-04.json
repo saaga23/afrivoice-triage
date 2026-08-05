@@ -1,0 +1,13 @@
+{
+  "id": "sample-04",
+  "text": "Ina dauwa da zazzaɓar jiki. Please I need urgent care, my temperature is very high.",
+  "language": "hausa",
+  "gender": "male",
+  "accent": "hausa",
+  "audio_file": "sample-04.wav",
+  "generated_by": "Sahara TTS (Intron Voice API)",
+  "generated_at": "2026-08-05T06:04:29.642Z",
+  "code_switch": "en",
+  "cmi": 0.3,
+  "duration_estimate": 9
+}

@@ -1,0 +1,13 @@
+{
+  "id": "sample-06",
+  "text": "Ndi flu. Ndinokuvara mumusoro. I need some pain relievers, can you recommend something?",
+  "language": "shona",
+  "gender": "male",
+  "accent": "shona",
+  "audio_file": "sample-06.wav",
+  "generated_by": "Sahara TTS (Intron Voice API)",
+  "generated_at": "2026-08-05T06:04:45.848Z",
+  "code_switch": "en",
+  "cmi": 0.28,
+  "duration_estimate": 10
+}

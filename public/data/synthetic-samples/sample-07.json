@@ -1,0 +1,13 @@
+{
+  "id": "sample-07",
+  "text": "Ndebwe n'induru. Please help me, I need medicine for my headache.",
+  "language": "kinyarwanda",
+  "gender": "female",
+  "accent": "kinyarwanda",
+  "audio_file": "sample-07.wav",
+  "generated_by": "Sahara TTS (Intron Voice API)",
+  "generated_at": "2026-08-05T06:04:50.453Z",
+  "code_switch": "en",
+  "cmi": 0.22,
+  "duration_estimate": 8
+}

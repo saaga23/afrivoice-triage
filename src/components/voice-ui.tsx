@@ -106,11 +106,12 @@ export function ChatInterface() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const scrollToBottom = () => {
-    const container = document.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
-    if (container) {
-      container.scrollTop = container.scrollHeight;
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   };
 
@@ -204,9 +205,23 @@ export function ChatInterface() {
   }, [messages]);
 
   useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const lastAssistant = messages.filter((m) => m.role === "assistant").pop();
     if (lastAssistant?.audioUrl) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       const audio = new Audio(lastAssistant.audioUrl);
+      audioRef.current = audio;
       audio.play().catch(() => {});
     }
   }, [messages]);
@@ -245,7 +260,7 @@ export function ChatInterface() {
 
       {consentGiven && (
         <>
-          <ScrollArea className="flex-1 px-4 py-4">
+          <ScrollArea className="flex-1 px-4 py-4" ref={scrollRef}>
         <div className="space-y-4">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-center py-16">
@@ -307,7 +322,7 @@ export function ChatInterface() {
                   <div>
                     {message.role === "user" && message.transcription && (
                       <p className="text-xs opacity-75 italic mb-1.5 text-emerald-100">
-                        Voice: {message.transcription}
+                        Voice message
                       </p>
                     )}
                     <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>

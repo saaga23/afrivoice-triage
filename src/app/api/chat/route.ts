@@ -28,12 +28,8 @@ export async function POST(req: NextRequest) {
 
     if (audio) {
       const base64Data = audio.includes(",") ? audio.split(",")[1] : audio;
-      const binaryString = atob(base64Data);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const blob = new Blob([bytes], { type: "audio/webm" });
+      const buffer = Buffer.from(base64Data, "base64");
+      const blob = new Blob([buffer], { type: "audio/webm" });
       const state = await agent.processVoiceInput(blob);
       return NextResponse.json({
         transcription: state.transcription,

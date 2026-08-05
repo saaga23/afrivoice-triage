@@ -1,0 +1,47 @@
+{
+  "dataset_name": "AfriVoice Synthetic Code-Switched Samples",
+  "description": "Synthetic code-switched audio samples generated using Intron Sahara TTS for demo and benchmarking purposes.",
+  "total_samples": 6,
+  "languages": [
+    "swahili-english",
+    "pidgin-english",
+    "yoruba-english",
+    "hausa-english",
+    "shona-english",
+    "kinyarwanda-english",
+    "chichewa-english"
+  ],
+  "generated_at": "2026-08-05T06:04:05.234Z",
+  "samples": [
+    {
+      "id": "sample-01",
+      "language": "swahili-english",
+      "text": "Ninahisi maumivu ya kichwa na joto la mwili. I think I need to see a doctor immediately."
+    },
+    {
+      "id": "sample-03",
+      "language": "yoruba-english",
+      "text": "O ni iru ori. Mo fe lo si dokita bayi. Can you help me find a clinic nearby?"
+    },
+    {
+      "id": "sample-04",
+      "language": "hausa-english",
+      "text": "Ina dauwa da zazzaɓar jiki. Please I need urgent care, my temperature is very high."
+    },
+    {
+      "id": "sample-05",
+      "language": "shona-english",
+      "text": "Umariko nkuru numwe. Ndinotoda kuenda kuna dokotira nhasi. Where is the nearest hospital?"
+    },
+    {
+      "id": "sample-06",
+      "language": "shona-english",
+      "text": "Ndi flu. Ndinokuvara mumusoro. I need some pain relievers, can you recommend something?"
+    },
+    {
+      "id": "sample-07",
+      "language": "kinyarwanda-english",
+      "text": "Ndebwe n'induru. Please help me, I need medicine for my headache."
+    }
+  ]
+}

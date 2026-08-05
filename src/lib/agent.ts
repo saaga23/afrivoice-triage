@@ -147,12 +147,11 @@ export class VoiceAgent {
 
   async processVoiceInput(audioBlob: Blob): Promise<AgentState> {
     const transcription = await this.client.transcribeStream(audioBlob, {
-      model: "sahara-v2",
+      language: "en",
     });
 
     const state: AgentState = {
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: transcription.text },
       ],
       transcription: transcription.text,
@@ -173,7 +172,6 @@ export class VoiceAgent {
   async textChat(message: string): Promise<AgentState> {
     const state: AgentState = {
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: message },
       ],
     };

@@ -1,16 +1,11 @@
-import OpenAI from "openai";
-
 export type SaharaSTTOptions = {
   language?: string;
-  model?: string;
-  response_format?: "json" | "text";
-  stream?: boolean;
 };
 
 export type SaharaTTSOptions = {
-  voice?: string;
-  model?: string;
-  speed?: number;
+  voice_accent?: string;
+  voice_gender?: "male" | "female";
+  voice_language?: string;
 };
 
 export type TranscriptionResult = {
@@ -24,21 +19,19 @@ export type SpeechSynthesisResult = {
   duration?: number;
 };
 
+const INTRON_VOICE_BASE = "https://infer.voice.intron.io";
+
 export class SaharaClient {
-  private client: OpenAI;
-  private sttEndpoint: string;
-  private ttsEndpoint: string;
+  private apiKey: string;
 
   constructor(apiKey: string) {
-    this.client = new OpenAI({
-      apiKey,
-      baseURL: "https://app.saharaai.com/developer/api/compute",
-      defaultHeaders: {
-        "x-api-key": apiKey,
-      },
-    });
-    this.sttEndpoint = "/v1/audio/transcriptions";
-    this.ttsEndpoint = "/v1/audio/speech";
+    this.apiKey = apiKey;
+  }
+
+  private authHeaders(): Record<string, string> {
+    return {
+      Authorization: `Bearer ${this.apiKey}`,
+    };
   }
 
   async transcribeStream(
@@ -46,33 +39,31 @@ export class SaharaClient {
     options: SaharaSTTOptions = {}
   ): Promise<TranscriptionResult> {
     const formData = new FormData();
-    formData.append("file", audioBlob, "audio.webm");
-    formData.append("model", options.model || "sahara-v2");
-    if (options.language) formData.append("language", options.language);
-    formData.append("response_format", options.response_format || "json");
+    const fileName = options.language ? `recording_${options.language}_${Date.now()}` : `recording_${Date.now()}`;
+    formData.append("audio_file_name", fileName);
+    formData.append("audio_file_blob", audioBlob, "audio.webm");
+    if (options.language) {
+      formData.append("use_language_asr_input", options.language);
+    }
 
-    const response = await fetch(
-      `${this.client.baseURL}${this.sttEndpoint}`,
-      {
-        method: "POST",
-      headers: {
-        "x-api-key": (this.client.apiKey || "") as string,
-      },
-        body: formData,
-      }
-    );
+    const response = await fetch(`${INTRON_VOICE_BASE}/file/v1/upload`, {
+      method: "POST",
+      headers: this.authHeaders(),
+      body: formData,
+    });
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`Sahara STT failed: ${response.status} ${text}`);
+      throw new Error(`Sahara STT upload failed: ${response.status} ${text}`);
     }
 
     const result = await response.json();
-    return {
-      text: result.text || result.transcript || "",
-      language: result.language || options.language,
-      duration: result.duration,
-    };
+    const fileId = result.data?.file_id;
+    if (!fileId) {
+      throw new Error(`Sahara STT upload failed: missing file_id in ${JSON.stringify(result)}`);
+    }
+
+    return this.pollTranscription(fileId);
   }
 
   async transcribeFile(
@@ -80,42 +71,135 @@ export class SaharaClient {
     options: SaharaSTTOptions = {}
   ): Promise<TranscriptionResult> {
     const fs = await import("fs");
-    const audioBuffer = fs.readFileSync(filePath);
-    const blob = new Blob([audioBuffer], { type: "audio/webm" });
+    const arrayBuffer = fs.readFileSync(filePath).buffer;
+    const blob = new Blob([arrayBuffer], { type: "audio/webm" });
     return this.transcribeStream(blob, options);
   }
 
-  // TODO: Wire this method into the agent pipeline so it can be called during response generation.
+  private async pollTranscription(
+    fileId: string,
+    attempts = 20,
+    intervalMs = 3000
+  ): Promise<TranscriptionResult> {
+    for (let i = 0; i < attempts; i++) {
+      const response = await fetch(`${INTRON_VOICE_BASE}/file/v1/status/${encodeURIComponent(fileId)}`, {
+        headers: this.authHeaders(),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Sahara STT status failed: ${response.status} ${text}`);
+      }
+
+      const result = await response.json();
+      const status = result.data?.processing_status;
+      if (status === "FILE_TRANSCRIBED") {
+        return {
+          text: result.data.audio_transcript || "",
+          duration: result.data.processed_audio_duration_in_seconds,
+        };
+      }
+      if (status === "FILE_TRANSCRIPTION_FAILED") {
+        throw new Error(`Sahara STT failed: ${result.data?.error_message || "transcription failed"}`);
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    }
+
+    throw new Error("Sahara STT timed out waiting for transcription");
+  }
+
+  private async fetchWithTimeout(url: string, timeoutMs = 30000): Promise<ArrayBuffer> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return await response.arrayBuffer();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async synthesizeSpeech(
     text: string,
     options: SaharaTTSOptions = {}
   ): Promise<SpeechSynthesisResult> {
-    const response = await fetch(`${this.client.baseURL}${this.ttsEndpoint}`, {
+    const response = await fetch(`${INTRON_VOICE_BASE}/tts/v1/generate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": (this.client.apiKey || "") as string,
+        ...this.authHeaders(),
       },
       body: JSON.stringify({
-        model: options.model || "sahara-v2-tts",
-        input: text,
-        voice: options.voice || "alloy",
-        speed: options.speed ?? 1.0,
+        text,
+        voice_accent: options.voice_accent || "swahili",
+        voice_gender: options.voice_gender || "female",
+        voice_language: options.voice_language || "en",
       }),
     });
 
-    if (!response.ok) {
+    if (!response.ok && response.status !== 503) {
       const text = await response.text();
       throw new Error(`Sahara TTS failed: ${response.status} ${text}`);
     }
 
-    const buffer = Buffer.from(await response.arrayBuffer());
-    const base64 = buffer.toString("base64");
-    const dataUrl = `data:audio/mpeg;base64,${base64}`;
+    const result = await response.json();
+    const audioPath = result.data?.audio_path;
+    if (!audioPath) {
+      const textId = result.data?.text_id;
+      if (textId) {
+        return this.pollTTSAudio(textId);
+      }
+      throw new Error(`Sahara TTS failed: missing audio_path in ${JSON.stringify(result)}`);
+    }
+
+    const audioBuffer = await this.fetchWithTimeout(audioPath);
+    const base64 = Buffer.from(audioBuffer).toString("base64");
+    const dataUrl = `data:audio/wav;base64,${base64}`;
 
     return {
       audio_url: dataUrl,
+      duration: result.data.audio_duration_in_seconds,
     };
+  }
+
+  private async pollTTSAudio(textId: string): Promise<SpeechSynthesisResult> {
+    for (let i = 0; i < 20; i++) {
+      const response = await fetch(`${INTRON_VOICE_BASE}/tts/v1/status/${encodeURIComponent(textId)}`, {
+        headers: this.authHeaders(),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Sahara TTS status failed: ${response.status} ${text}`);
+      }
+
+      const result = await response.json();
+      const status = result.data?.processing_status;
+      if (status === "TTS_TEXT_AUDIO_GENERATED") {
+        const audioPath = result.data?.audio_path;
+        if (!audioPath) {
+          throw new Error(`Sahara TTS status missing audio_path: ${JSON.stringify(result)}`);
+        }
+        const audioBuffer = await this.fetchWithTimeout(audioPath);
+        const base64 = Buffer.from(audioBuffer).toString("base64");
+        const dataUrl = `data:audio/wav;base64,${base64}`;
+        return {
+          audio_url: dataUrl,
+          duration: result.data.audio_duration_in_seconds,
+        };
+      }
+      if (status === "TTS_TEXT_AUDIO_PROCESSING_FAILED") {
+        throw new Error(`Sahara TTS failed: ${result.data?.error_message || "processing failed"}`);
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+
+    throw new Error("Sahara TTS timed out waiting for audio generation");
   }
 }
 

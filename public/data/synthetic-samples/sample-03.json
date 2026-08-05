@@ -1,0 +1,13 @@
+{
+  "id": "sample-03",
+  "text": "O ni iru ori. Mo fe lo si dokita bayi. Can you help me find a clinic nearby?",
+  "language": "yoruba",
+  "gender": "female",
+  "accent": "yoruba",
+  "audio_file": "sample-03.wav",
+  "generated_by": "Sahara TTS (Intron Voice API)",
+  "generated_at": "2026-08-05T06:04:24.448Z",
+  "code_switch": "en",
+  "cmi": 0.4,
+  "duration_estimate": 10
+}

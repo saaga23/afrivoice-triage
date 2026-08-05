@@ -103,6 +103,6 @@ samples + metadata ship in `public/data/` for judge reproduction.
 ## 7. Reproduction
 
 - Results JSON with per-sample transcripts: `public/data/benchmark-results.json`
-- Kernel script (Kaggle GPU): `kaggle-benchmark/benchmark.py`
+- Kernel script (Kaggle GPU): `scripts/kaggle-benchmark.py`
 - AfriSwitch subsets (6 languages × 20 test samples): `public/data/afriswitch/`
 - Live interactive runner (Sahara + OpenAI-compatible models): `/bench` page

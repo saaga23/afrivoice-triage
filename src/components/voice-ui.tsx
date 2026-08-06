@@ -146,7 +146,7 @@ export function ChatInterface() {
     }
   };
 
-  const processResponse = async (userContent: string, audioBase64?: string, userMessageId?: string) => {
+  const processResponse = async (userContent: string, audioBase64?: string, userMessageId?: string, audioMimeType?: string) => {
     setIsLoading(true);
     try {
       // Send prior turns so the agent reasons over the whole conversation.
@@ -157,7 +157,7 @@ export function ChatInterface() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(audioBase64 ? { audio: audioBase64, language: voiceLang, history } : { message: userContent, history }),
+        body: JSON.stringify(audioBase64 ? { audio: audioBase64, audioType: audioMimeType || "audio/webm", language: voiceLang, history } : { message: userContent, history }),
       });
 
       if (!res.ok) throw new Error("Failed to get response");
@@ -230,7 +230,7 @@ export function ChatInterface() {
       };
 
       setMessages((prev) => [...prev, userMessage]);
-      await processResponse("", base64, userMessage.id);
+      await processResponse("", base64, userMessage.id, blob.type || "audio/webm");
     };
     reader.readAsDataURL(blob);
   };

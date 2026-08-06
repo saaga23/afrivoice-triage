@@ -6,11 +6,12 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { message, audio, language, history } = body as {
+    const { message, audio, language, history, audioType } = body as {
       message?: string;
       audio?: string;
       language?: string;
       history?: { role: string; content: string }[];
+      audioType?: string;
     };
 
     if (!message && !audio) {
@@ -18,6 +19,10 @@ export async function POST(req: NextRequest) {
         { error: "message or audio is required" },
         { status: 400 }
       );
+    }
+
+    if (message && message.length > 2000) {
+      return NextResponse.json({ error: "Message too long (max 2000 characters)" }, { status: 413 });
     }
 
     // Conversation context arrives from the client each turn — the server keeps
@@ -42,7 +47,12 @@ export async function POST(req: NextRequest) {
     if (audio) {
       const base64Data = audio.includes(",") ? audio.split(",")[1] : audio;
       const buffer = Buffer.from(base64Data, "base64");
-      const blob = new Blob([buffer], { type: "audio/webm" });
+      if (buffer.length > 8_000_000) {
+        return NextResponse.json({ error: "Audio too large (max ~8MB, keep clips under a minute)" }, { status: 413 });
+      }
+      // Client tells us the real container (iOS Safari records mp4/aac)
+      const blobType = typeof audioType === "string" && audioType.startsWith("audio/") ? audioType : "audio/webm";
+      const blob = new Blob([buffer], { type: blobType });
       const state = await agent.processVoiceInput(blob, language || "en", sanitizedHistory);
       return NextResponse.json({
         transcription: state.transcription,

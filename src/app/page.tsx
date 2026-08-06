@@ -67,7 +67,7 @@ export default function Home() {
               </Badge>
               <Badge variant="outline" className="gap-1.5">
                 <Globe2 className="w-3.5 h-3.5" />
-                5+ Languages
+                8 Languages
               </Badge>
               <Badge variant="outline" className="gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" />
@@ -77,6 +77,11 @@ export default function Home() {
                 <Activity className="w-3.5 h-3.5" />
                 Agentic Pipeline
               </Badge>
+            </div>
+            <div className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/70 dark:bg-emerald-950/40 px-4 py-2.5 text-sm text-emerald-900 dark:text-emerald-100">
+              <span className="font-semibold">WER 0.603</span>
+              <span className="text-emerald-700 dark:text-emerald-300">Sahara v2 — best of 3 models on 120 real code-switched utterances</span>
+              <a href="/bench" className="underline underline-offset-2 font-medium hover:text-emerald-600">See benchmark →</a>
             </div>
           </div>
         </div>
@@ -165,16 +170,19 @@ export default function Home() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-600 dark:text-slate-300">Sahara v2</span>
-                    <Badge variant="secondary" className="text-xs">Primary</Badge>
+                    <Badge variant="secondary" className="text-xs">WER 0.603 · Primary</Badge>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-300">Whisper (whisper-1)</span>
-                    <Badge variant="outline" className="text-xs">Baseline</Badge>
+                    <span className="text-slate-600 dark:text-slate-300">Whisper large-v3</span>
+                    <Badge variant="outline" className="text-xs">WER 0.692</Badge>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-300">GPT-4o Audio</span>
-                    <Badge variant="outline" className="text-xs">Baseline</Badge>
+                    <span className="text-slate-600 dark:text-slate-300">wav2vec2 XLS-R-53</span>
+                    <Badge variant="outline" className="text-xs">WER 0.853</Badge>
                   </div>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                    N=120 real AfriSwitch code-switched utterances — same samples, all 3 models
+                  </p>
                 </div>
                 <a
                   href="/bench"

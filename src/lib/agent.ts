@@ -236,6 +236,19 @@ export class VoiceAgent {
       language,
     });
 
+    // Guard: silence / bad mic must not run the graph on an empty message —
+    // a generic "how can I help you" looks broken during a live demo.
+    if (!transcription.text || !transcription.text.trim()) {
+      return {
+        messages: [],
+        transcription: "",
+        intent: "general_support",
+        urgency: "low",
+        toolCalls: [],
+        response: "I couldn't hear you clearly. Please try again — speak a little closer to the microphone, or type your symptoms below.",
+      };
+    }
+
     const state: AgentState = {
       messages: [
         ...history,

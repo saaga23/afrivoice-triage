@@ -42,8 +42,10 @@ export class SaharaClient {
   ): Promise<TranscriptionResult> {
     const formData = new FormData();
     const fileName = options.language ? `recording_${options.language}_${Date.now()}` : `recording_${Date.now()}`;
+    // Preserve the client-recorded container (iOS Safari records mp4/aac, not webm)
+    const ext = (audioBlob.type.split("/")[1] || "webm").split(";")[0];
     formData.append("audio_file_name", fileName);
-    formData.append("audio_file_blob", audioBlob, "audio.webm");
+    formData.append("audio_file_blob", audioBlob, `audio.${ext}`);
     if (options.language) {
       formData.append("use_language_asr_input", options.language);
     }
@@ -52,7 +54,7 @@ export class SaharaClient {
       method: "POST",
       headers: this.authHeaders(),
       body: formData,
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(20000),
     });
 
     if (!response.ok) {
@@ -81,13 +83,15 @@ export class SaharaClient {
 
   private async pollTranscription(
     fileId: string,
-    attempts = 20,
-    intervalMs = 3000
+    attempts = 12,
+    intervalMs = 2500
   ): Promise<TranscriptionResult> {
+    // Budget: worst case ~12 × (5s fetch + 2.5s wait) ≈ 40s after upload —
+    // must stay inside the Vercel function's 60s maxDuration or the demo dies.
     for (let i = 0; i < attempts; i++) {
       const response = await fetch(`${INTRON_VOICE_BASE}/file/v1/status/${encodeURIComponent(fileId)}`, {
         headers: this.authHeaders(),
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(5000),
       });
 
       if (!response.ok) {

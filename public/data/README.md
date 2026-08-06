@@ -3,9 +3,11 @@
 ## Real Samples (AfriSwitch)
 
 Intron-provided code-switching benchmark dataset. Local copies are 20-sample
-subsets of each official test split, saved in Hugging Face `datasets` format
+subsets of each official test split — the **first 20 rows of each config**
+(`dataset.select(range(20))`), identical sample IDs across all benchmarked
+models — saved in Hugging Face `datasets` format
 (`.arrow`) with audio, transcription, code-mixing index (CMI), and switch-point
-metadata.
+metadata. See `docs/METHODOLOGY.md` for the full protocol.
 
 | Config | Local Subset | Source Test Split | Features |
 |--------|--------------|-------------------|----------|

@@ -6,15 +6,17 @@
 
 🎬 [Demo video](#-demo-video) · 🌐 [Live app](https://app-phi-one-ah0g1z34ov.vercel.app) · 📊 [Benchmark report](docs/BENCHMARK.md) · 🧪 [Live benchmark runner](https://app-phi-one-ah0g1z34ov.vercel.app/bench)
 
-### Headline benchmark result (WER, lower is better — code-switched health audio)
+### Headline benchmark result — real AfriSwitch N=120 (WER, lower is better)
 
-| Model | WER |
-|---|---|
-| **Intron Sahara v2** | **0.347** |
-| Whisper large-v3 | 0.450 |
-| wav2vec2 XLS-R-53 | 0.604 |
+| Model | WER | Mean latency |
+|---|---|---|
+| **Intron Sahara v2** | **0.603** | 7.4 s |
+| Whisper large-v3 | 0.692 | 79.6 s |
+| wav2vec2 XLS-R-53 | 0.853 | 3.1 s |
 
-> On Hausa–English speech, Whisper large-v3 **silently deleted the entire Hausa segment** of an urgent-care utterance — in triage, a silent deletion is worse than a wrong word. Sahara kept both language spans. Full methodology: [docs/BENCHMARK.md](docs/BENCHMARK.md).
+> All 3 models evaluated on the **same 120 real in-the-wild code-switched utterances** (20 per language × 6 languages, official AfriSwitch test split). Sahara leads overall and on Hausa, Swahili, Yoruba; Whisper leads on Pidgin, Igbo, Shona. Full methodology: [docs/METHODOLOGY.md](docs/METHODOLOGY.md) · Full report with pros/cons: [docs/BENCHMARK.md](docs/BENCHMARK.md).
+
+Synthetic pilot (N=6, Sahara-TTS-generated audio — circularity disclosed): Sahara 0.347 · Whisper 0.450 · XLS-R 0.604. On Hausa–English speech, Whisper large-v3 **silently deleted the entire Hausa segment** of an urgent-care utterance — in triage, a silent deletion is worse than a wrong word. Sahara kept both language spans.
 
 ## 🚀 Quick Start
 
@@ -35,7 +37,7 @@
 
 - **Frontend:** Next.js 14, TypeScript, Tailwind CSS v4, shadcn/ui
 - **Backend:** Next.js API Routes
-- **AI:** LangChain + LangGraph for agentic reasoning, Intron Sahara v2 for STT/TTS, OpenAI (Whisper, GPT-4o Transcribe, LLM fallback)
+- **AI:** LangChain + LangGraph for agentic reasoning, Intron Sahara v2 for STT/TTS. LLM reasoning via gpt-4o-mini when `OPENAI_API_KEY` is set, with a deterministic rule-based safety layer (intent, urgency, 8-language emergency net) that works identically with or without an LLM — the live deployment runs on that safety layer by design.
 
 ## 📁 Structure
 

@@ -350,17 +350,19 @@ product: the agent never sees the symptom.</p>
 <h2 id="5-real-data-validation--all-3-models-on-afriswitch-n120">5.
 Real-data validation — all 3 models on AfriSwitch (N=120)</h2>
 <p>The synthetic pilot above is supplemented by a run on <strong>120
-real in-the-wild utterances</strong> (20 per config × 6 configs) drawn
-from the official AfriSwitch test split
-(<code>public/data/afriswitch/</code>). <strong>All three models were
-evaluated on the same 120 samples</strong> with the same
-<code>jiwer</code> normalization; Sahara used the correct per-language
-ASR hint (<code>use_language_asr_input</code>: sw/yo/ha/ig/pcm/sn),
-Whisper large-v3 ran on Kaggle GPU fp16, and wav2vec2 XLS-R-53 ran on
-Kaggle CPU fp32. Per-sample results:
+real in-the-wild utterances</strong> (20 per config × 6 configs — the
+first 20 rows of each config's official AfriSwitch test split, identical
+sample IDs for all three models; <code>public/data/afriswitch/</code>).
+<strong>All three models were evaluated on the same 120 samples</strong>
+with the same <code>jiwer</code> normalization; Sahara used the correct
+per-language ASR hint (<code>use_language_asr_input</code>:
+sw/yo/ha/ig/pcm/sn), Whisper large-v3 ran on Kaggle (GPU fp16 requested;
+the kernel's automatic fallback ran CPU int8 — see latency), and
+wav2vec2 XLS-R-53 ran on Kaggle CPU fp32. Per-sample results:
 <code>public/data/benchmark-afriswitch-sahara.jsonl</code>,
 <code>public/data/benchmark-afriswitch-opensource.jsonl</code>,
-<code>public/data/benchmark-afriswitch-xlsr-cpu.jsonl</code>.</p>
+<code>public/data/benchmark-afriswitch-xlsr-cpu.jsonl</code>. Full
+methodology: <code>docs/METHODOLOGY.md</code>.</p>
 <table>
 <thead>
 <tr>
@@ -382,7 +384,7 @@ Kaggle CPU fp32. Per-sample results:
 <tr>
 <td>Pidgin–English</td>
 <td>20</td>
-<td><strong>0.390</strong></td>
+<td>0.390</td>
 <td><strong>0.338</strong></td>
 <td>0.623</td>
 </tr>
@@ -405,14 +407,14 @@ Kaggle CPU fp32. Per-sample results:
 <td>20</td>
 <td>0.881</td>
 <td><strong>0.668</strong></td>
-<td><strong>0.795</strong></td>
+<td>0.795</td>
 </tr>
 <tr>
 <td>Shona–English</td>
 <td>20</td>
 <td>0.885</td>
 <td><strong>0.773</strong></td>
-<td><strong>0.878</strong></td>
+<td>0.878</td>
 </tr>
 <tr>
 <td><strong>Overall</strong></td>
@@ -424,13 +426,16 @@ Kaggle CPU fp32. Per-sample results:
 </tbody>
 </table>
 <p>Latency: Sahara 7.4 s/utterance (API upload + polling); Whisper 79.6
-s/utterance (GPU); XLS-R 3.1 s/utterance (CPU).</p>
+s/utterance (CPU int8 fallback profile — the WER numbers are unaffected
+by device); XLS-R 3.1 s/utterance (CPU).</p>
 <p><strong>What this shows, honestly:</strong></p>
 <ul>
 <li><strong>Sahara wins the overall real-data WER (0.603)</strong>,
 followed by Whisper (0.692) and XLS-R (0.853).</li>
-<li>Sahara is strongest on Hausa, Pidgin, and Swahili code-switching
-(0.37–0.40) on unscripted podcast/YouTube speech.</li>
+<li>Sahara is strongest on Hausa and Swahili code-switching (0.37–0.40)
+and clearly ahead on Yoruba (0.688 vs 0.959) on unscripted
+podcast/YouTube speech; on Pidgin the two are close, with Whisper
+slightly better (0.390 vs 0.338).</li>
 <li>Whisper is stronger than Sahara on Igbo and Shona (0.67–0.77 vs
 0.88) — neither model is universally best, and deployment language
 should drive the choice.</li>
@@ -481,16 +486,16 @@ low-bandwidth readiness)</li>
 <li>❌ ~30% higher WER than Sahara on code-switched speech;
 <strong>silently dropped an entire non-English segment</strong> in one
 sample — worst failure mode for a medical pipeline</li>
-<li>❌ Heavy (large-v3 needs GPU for usable latency; 31.8 s/utterance on
-CPU int8)</li>
+<li>❌ Heavy (large-v3 needs GPU for usable latency; ~80 s/utterance
+measured on CPU int8)</li>
 </ul>
 <p><strong>wav2vec2 XLS-R-53 (open source)</strong></p>
 <ul>
-<li>✅ Fastest by far (1.7 s/utterance on CPU), small footprint, fully
+<li>✅ Fastest by far (3.1 s/utterance on CPU), small footprint, fully
 offline</li>
 <li>✅ Multilingual pretraining across 53 languages</li>
-<li>❌ Worst WER (0.60); English-finetuned head mangles African-language
-spans</li>
+<li>❌ Worst real-data WER (0.853 overall on N=120 AfriSwitch);
+English-finetuned head mangles African-language spans</li>
 <li>❌ Needs per-language fine-tuning to be viable — extra engineering
 cost</li>
 </ul>
@@ -505,13 +510,21 @@ report), and all samples + metadata ship in <code>public/data/</code>
 for judge reproduction.</p>
 <h2 id="8-reproduction">8. Reproduction</h2>
 <ul>
+<li><strong>Methodology (metric, dataset, sampling, models,
+runs):</strong> <code>docs/METHODOLOGY.md</code></li>
 <li>Results JSON with per-sample transcripts:
 <code>public/data/benchmark-results.json</code></li>
 <li>Real-data Sahara results (N=120):
 <code>public/data/benchmark-afriswitch-sahara.jsonl</code></li>
 <li>Real-data Whisper results (N=120):
 <code>public/data/benchmark-afriswitch-opensource.jsonl</code></li>
-<li>Kernel script (Kaggle GPU):
+<li>Real-data XLS-R results (N=120):
+<code>public/data/benchmark-afriswitch-xlsr-cpu.jsonl</code></li>
+<li>N=120 kernel scripts:
+<code>scripts/sahara-afriswitch-kaggle.py</code>,
+<code>scripts/opensource-afriswitch-kaggle.py</code>,
+<code>scripts/xlsr-afriswitch-cpu.py</code></li>
+<li>Pilot kernel script (synthetic N=6):
 <code>scripts/kaggle-benchmark.py</code></li>
 <li>AfriSwitch subsets (6 languages × 20 test samples):
 <code>public/data/afriswitch/</code></li>

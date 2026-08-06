@@ -27,7 +27,12 @@ function computeWER(reference: string, hypothesis: string): number {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { audio, referenceText } = body as { audio?: string; referenceText?: string };
+    const { audio, referenceText, language, audioType } = body as {
+      audio?: string;
+      referenceText?: string;
+      language?: string;
+      audioType?: string;
+    };
 
     if (!audio) {
       return NextResponse.json({ error: "audio is required" }, { status: 400 });
@@ -35,7 +40,15 @@ export async function POST(req: NextRequest) {
 
     const base64Data = audio.includes(",") ? audio.split(",")[1] : audio;
     const buffer = Buffer.from(base64Data, "base64");
-    const blob = new Blob([buffer], { type: "audio/webm" });
+    if (buffer.length > 8_000_000) {
+      return NextResponse.json({ error: "Audio too large (max ~8MB)" }, { status: 413 });
+    }
+    // Real container type comes from the client (uploaded file or recorder)
+    const blobType = typeof audioType === "string" && audioType.startsWith("audio/") ? audioType : "audio/webm";
+    const blob = new Blob([buffer], { type: blobType });
+    const ext = blobType.split("/")[1]?.split(";")[0] || "webm";
+    // Sahara language hint — without it, non-English audio can return empty
+    const saharaLang = typeof language === "string" && language ? language : undefined;
 
     const results: Array<{ model: string; wer: number | null; latency: number; costPerMinute: number | null; transcript?: string; error?: string }> = [];
 
@@ -45,7 +58,7 @@ export async function POST(req: NextRequest) {
       if (saharaApiKey) {
         const start = performance.now();
         const client = createSaharaClient(saharaApiKey);
-        const transcription = await client.transcribeStream(blob, { language: "en" });
+        const transcription = await client.transcribeStream(blob, saharaLang ? { language: saharaLang } : {});
         const latency = (performance.now() - start) / 1000;
         const transcript = transcription.text || "";
         const wer = referenceText ? computeWER(referenceText, transcript) : null;
@@ -80,7 +93,7 @@ export async function POST(req: NextRequest) {
     try {
       const start = performance.now();
       const whisperForm = new FormData();
-      whisperForm.append("file", blob, "audio.webm");
+      whisperForm.append("file", blob, `audio.${ext}`);
       whisperForm.append("model", "whisper-1");
       const whisperKey = process.env.OPENAI_API_KEY;
       if (whisperKey) {
@@ -136,7 +149,7 @@ export async function POST(req: NextRequest) {
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
         const start = performance.now();
         const transcription = await openai.audio.transcriptions.create({
-          file: new File([blob], "audio.webm", { type: "audio/webm" }),
+          file: new File([blob], `audio.${ext}`, { type: blobType }),
           model: "gpt-4o-transcribe",
         });
         const latency = (performance.now() - start) / 1000;

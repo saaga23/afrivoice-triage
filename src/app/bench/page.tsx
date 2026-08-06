@@ -21,6 +21,7 @@ export default function BenchmarkPage() {
   const [results, setResults] = useState<BenchmarkResult[]>([]);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [referenceText, setReferenceText] = useState("");
+  const [benchLang, setBenchLang] = useState("");
 
   const runBenchmark = async () => {
     if (!audioFile) return;
@@ -34,7 +35,12 @@ export default function BenchmarkPage() {
         const res = await fetch("/api/bench", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ audio: audioBase64, referenceText }),
+          body: JSON.stringify({
+            audio: audioBase64,
+            referenceText,
+            language: benchLang || undefined,
+            audioType: audioFile.type || undefined,
+          }),
         });
 
         if (!res.ok) throw new Error("Benchmark failed");
@@ -81,10 +87,55 @@ export default function BenchmarkPage() {
         </div>
 
         <div className="max-w-5xl mx-auto grid gap-6">
+          <Card className="p-6 border-emerald-200 dark:border-emerald-800">
+            <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-emerald-600" />
+              Official results — N=120 real AfriSwitch code-switched utterances
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              All 3 models ran on the same 120 test-split samples (20 per language × 6 languages). Lower WER is better.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="py-2 font-medium">Model</th>
+                    <th className="py-2 font-medium">Overall WER</th>
+                    <th className="py-2 font-medium">Mean latency</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="py-2.5 font-medium">Sahara v2 <span className="text-xs text-emerald-700 dark:text-emerald-400 font-normal">(Primary)</span></td>
+                    <td className="py-2.5 font-mono font-semibold text-emerald-700 dark:text-emerald-400">0.603</td>
+                    <td className="py-2.5">7.4s</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2.5 font-medium">Whisper large-v3</td>
+                    <td className="py-2.5 font-mono">0.692</td>
+                    <td className="py-2.5">79.6s</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-2.5 font-medium">wav2vec2 XLS-R-53</td>
+                    <td className="py-2.5 font-mono">0.853</td>
+                    <td className="py-2.5">3.1s</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+              Per-language Sahara/Whisper — Hausa 0.371/0.892 · Pidgin 0.390/0.338 · Swahili 0.400/0.525 · Yoruba 0.688/0.959 · Igbo 0.881/0.668 · Shona 0.885/0.773.{" "}
+              Full report with pros/cons:{" "}
+              <a href="https://github.com/saaga23/afrivoice-triage/blob/master/docs/BENCHMARK.md" target="_blank" rel="noopener noreferrer" className="underline text-emerald-700 dark:text-emerald-400 font-medium">
+                docs/BENCHMARK.md
+              </a>
+            </p>
+          </Card>
+
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              Benchmark Configuration
+              <Play className="w-5 h-5" />
+              Try it live — upload your own audio
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -100,6 +151,22 @@ export default function BenchmarkPage() {
                     Selected: {audioFile.name}
                   </p>
                 )}
+                <label className="block text-sm font-medium mb-2 mt-3">Spoken language (Sahara ASR hint)</label>
+                <select
+                  value={benchLang}
+                  onChange={(e) => setBenchLang(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">Auto / not specified</option>
+                  <option value="en">English</option>
+                  <option value="sw">Swahili</option>
+                  <option value="yo">Yoruba</option>
+                  <option value="ha">Hausa</option>
+                  <option value="ig">Igbo</option>
+                  <option value="pcm">Pidgin</option>
+                  <option value="sn">Shona</option>
+                  <option value="rw">Kinyarwanda</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Reference Transcript (for WER)</label>
@@ -189,7 +256,7 @@ export default function BenchmarkPage() {
           <Card className="p-6">
             <h3 className="text-xl font-semibold mb-4">Benchmark Methodology</h3>
             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-              <p>Live runner models: Intron Sahara v2, OpenAI Whisper (whisper-1), OpenAI GPT-4o Audio (gpt-4o-transcribe)</p>
+              <p>Live runner models: Intron Sahara v2, OpenAI Whisper (whisper-1), OpenAI GPT-4o Audio (gpt-4o-transcribe). OpenAI rows show "Unavailable" unless an API key is configured — the official results above come from the offline Kaggle runs.</p>
               <p>Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances)</p>
               <p>Metrics: WER, Latency, Cost per minute</p>
               <p>Conditions: In-the-wild conversational speech, multiple African accents</p>

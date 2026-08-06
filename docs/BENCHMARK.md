@@ -73,33 +73,38 @@ product: the agent never sees the symptom.
 ## 5. Real-data validation — all 3 models on AfriSwitch (N=120)
 
 The synthetic pilot above is supplemented by a run on **120 real in-the-wild utterances**
-(20 per config × 6 configs) drawn from the official AfriSwitch test split
-(`public/data/afriswitch/`). **All three models were evaluated on the same 120 samples** with
-the same `jiwer` normalization; Sahara used the correct per-language ASR hint
-(`use_language_asr_input`: sw/yo/ha/ig/pcm/sn), Whisper large-v3 ran on Kaggle GPU fp16,
-and wav2vec2 XLS-R-53 ran on Kaggle CPU fp32. Per-sample results:
+(20 per config × 6 configs — the first 20 rows of each config's official AfriSwitch test
+split, identical sample IDs for all three models; `public/data/afriswitch/`). **All three
+models were evaluated on the same 120 samples** with the same `jiwer` normalization;
+Sahara used the correct per-language ASR hint (`use_language_asr_input`:
+sw/yo/ha/ig/pcm/sn), Whisper large-v3 ran on Kaggle (GPU fp16 requested; the kernel's
+automatic fallback ran CPU int8 — see latency), and wav2vec2 XLS-R-53 ran on Kaggle CPU
+fp32. Per-sample results:
 `public/data/benchmark-afriswitch-sahara.jsonl`,
 `public/data/benchmark-afriswitch-opensource.jsonl`,
 `public/data/benchmark-afriswitch-xlsr-cpu.jsonl`.
+Full methodology: `docs/METHODOLOGY.md`.
 
 | Language | n | Sahara v2 ↓ | Whisper large-v3 ↓ | wav2vec2 XLS-R-53 ↓ |
 |----------|---|-------------|--------------------|---------------------|
 | Hausa–English | 20 | **0.371** | 0.892 | 0.962 |
-| Pidgin–English | 20 | **0.390** | **0.338** | 0.623 |
+| Pidgin–English | 20 | 0.390 | **0.338** | 0.623 |
 | Swahili–English | 20 | **0.400** | 0.525 | 0.906 |
 | Yoruba–English | 20 | **0.688** | 0.959 | 0.956 |
-| Igbo–English | 20 | 0.881 | **0.668** | **0.795** |
-| Shona–English | 20 | 0.885 | **0.773** | **0.878** |
+| Igbo–English | 20 | 0.881 | **0.668** | 0.795 |
+| Shona–English | 20 | 0.885 | **0.773** | 0.878 |
 | **Overall** | **120** | **0.603** | **0.692** | **0.853** |
 
-Latency: Sahara 7.4 s/utterance (API upload + polling); Whisper 79.6 s/utterance (GPU);
+Latency: Sahara 7.4 s/utterance (API upload + polling); Whisper 79.6 s/utterance
+(CPU int8 fallback profile — the WER numbers are unaffected by device);
 XLS-R 3.1 s/utterance (CPU).
 
 **What this shows, honestly:**
 
 - **Sahara wins the overall real-data WER (0.603)**, followed by Whisper (0.692) and XLS-R (0.853).
-- Sahara is strongest on Hausa, Pidgin, and Swahili code-switching (0.37–0.40) on unscripted
-  podcast/YouTube speech.
+- Sahara is strongest on Hausa and Swahili code-switching (0.37–0.40) and clearly ahead on
+  Yoruba (0.688 vs 0.959) on unscripted podcast/YouTube speech; on Pidgin the two are
+  close, with Whisper slightly better (0.390 vs 0.338).
 - Whisper is stronger than Sahara on Igbo and Shona (0.67–0.77 vs 0.88) — neither model is
   universally best, and deployment language should drive the choice.
 - XLS-R-53 is the fastest model but the least accurate on real code-switched audio; its
@@ -136,12 +141,12 @@ reporting matters; the final numbers above are from clean, post-recovery runs.
 - ✅ Free at any scale; huge ecosystem
 - ❌ ~30% higher WER than Sahara on code-switched speech; **silently dropped an entire
   non-English segment** in one sample — worst failure mode for a medical pipeline
-- ❌ Heavy (large-v3 needs GPU for usable latency; 31.8 s/utterance on CPU int8)
+- ❌ Heavy (large-v3 needs GPU for usable latency; ~80 s/utterance measured on CPU int8)
 
 **wav2vec2 XLS-R-53 (open source)**
-- ✅ Fastest by far (1.7 s/utterance on CPU), small footprint, fully offline
+- ✅ Fastest by far (3.1 s/utterance on CPU), small footprint, fully offline
 - ✅ Multilingual pretraining across 53 languages
-- ❌ Worst WER (0.60); English-finetuned head mangles African-language spans
+- ❌ Worst real-data WER (0.853 overall on N=120 AfriSwitch); English-finetuned head mangles African-language spans
 - ❌ Needs per-language fine-tuning to be viable — extra engineering cost
 
 ## 7. Product decision
@@ -155,9 +160,12 @@ samples + metadata ship in `public/data/` for judge reproduction.
 
 ## 8. Reproduction
 
+- **Methodology (metric, dataset, sampling, models, runs):** `docs/METHODOLOGY.md`
 - Results JSON with per-sample transcripts: `public/data/benchmark-results.json`
 - Real-data Sahara results (N=120): `public/data/benchmark-afriswitch-sahara.jsonl`
 - Real-data Whisper results (N=120): `public/data/benchmark-afriswitch-opensource.jsonl`
-- Kernel script (Kaggle GPU): `scripts/kaggle-benchmark.py`
+- Real-data XLS-R results (N=120): `public/data/benchmark-afriswitch-xlsr-cpu.jsonl`
+- N=120 kernel scripts: `scripts/sahara-afriswitch-kaggle.py`, `scripts/opensource-afriswitch-kaggle.py`, `scripts/xlsr-afriswitch-cpu.py`
+- Pilot kernel script (synthetic N=6): `scripts/kaggle-benchmark.py`
 - AfriSwitch subsets (6 languages × 20 test samples): `public/data/afriswitch/`
 - Live interactive runner (Sahara + OpenAI-compatible models): `/bench` page

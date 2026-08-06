@@ -207,13 +207,13 @@ export class VoiceAgent {
       .compile();
   }
 
-  async processVoiceInput(audioBlob: Blob): Promise<AgentState> {
+  async processVoiceInput(audioBlob: Blob, language = "en"): Promise<AgentState> {
     const client = this.client;
     if (!client) {
       throw new Error("SAHARA_API_KEY is required for voice input");
     }
     const transcription = await client.transcribeStream(audioBlob, {
-      language: "en",
+      language,
     });
 
     const state: AgentState = {

@@ -135,6 +135,7 @@ export function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [voiceDeclined, setVoiceDeclined] = useState(false);
+  const [voiceLang, setVoiceLang] = useState("en");
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -150,7 +151,7 @@ export function ChatInterface() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(audioBase64 ? { audio: audioBase64 } : { message: userContent }),
+        body: JSON.stringify(audioBase64 ? { audio: audioBase64, language: voiceLang } : { message: userContent }),
       });
 
       if (!res.ok) throw new Error("Failed to get response");
@@ -420,6 +421,23 @@ export function ChatInterface() {
 
       <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
+          <select
+            value={voiceLang}
+            onChange={(e) => setVoiceLang(e.target.value)}
+            disabled={voiceDeclined && !consentGiven}
+            aria-label="Voice input language"
+            title="Language you'll speak in (Sahara ASR hint)"
+            className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-2.5 text-xs dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 disabled:opacity-40"
+          >
+            <option value="en">English</option>
+            <option value="sw">Swahili</option>
+            <option value="yo">Yoruba</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+            <option value="pcm">Pidgin</option>
+            <option value="sn">Shona</option>
+            <option value="rw">Kinyarwanda</option>
+          </select>
           <VoiceRecorder onSendAudio={handleSendAudio} disabled={voiceDeclined && !consentGiven} />
           <input
             type="text"

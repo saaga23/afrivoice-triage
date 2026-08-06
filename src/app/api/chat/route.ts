@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { message, audio } = body as { message?: string; audio?: string };
+    const { message, audio, language } = body as { message?: string; audio?: string; language?: string };
 
     if (!message && !audio) {
       return NextResponse.json(
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       const base64Data = audio.includes(",") ? audio.split(",")[1] : audio;
       const buffer = Buffer.from(base64Data, "base64");
       const blob = new Blob([buffer], { type: "audio/webm" });
-      const state = await agent.processVoiceInput(blob);
+      const state = await agent.processVoiceInput(blob, language || "en");
       return NextResponse.json({
         transcription: state.transcription,
         intent: state.intent,

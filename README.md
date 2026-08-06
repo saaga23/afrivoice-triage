@@ -101,7 +101,7 @@ Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances) + 6 synt
 ## 📝 Deliverables
 
 - [x] Solution code (this repo)
-- [x] Demo video (`public/demo-video/afrivoice-live-demo-narrated.mp4` — live-app recording; YouTube link pending upload)
+- [x] Demo video (`public/demo-video/afrivoice-demo-final.mp4` — live-app recording, narrated + subtitled; YouTube link pending upload)
 - [x] Benchmark report (`docs/BENCHMARK.md`)
 - [x] Ethics/inclusion note (`docs/ETHICS.md`)
 - [x] Audio samples with metadata (`public/data/`)

@@ -1,4 +1,4 @@
-# AfriVoice Triage — Submission Form Answers (Draft)
+# AfriVoice Triage — Submission Form Answers
 
 MLC (Africa) × Intron Agentic Voice AI Challenge 2026 — Health category
 Rubric alignment: impact 20% · benchmark quality 30% · product/agentic fit 25% · technical execution 15% · ethics 10%

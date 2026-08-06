@@ -125,7 +125,7 @@ reporting matters; the final numbers above are from clean, post-recovery runs.
 ## 6. Pros and cons per model (required)
 
 **Intron Sahara v2**
-- ✅ Best WER on every code-switched language pair tested; purpose-built for African speech
+- ✅ Best WER on every code-switched language pair in the synthetic pilot; on real AfriSwitch data it leads Whisper on Hausa, Swahili, and Yoruba (see §5); purpose-built for African speech
 - ✅ Handles intra-utterance language switching without configuration; no segment deletion
 - ✅ Managed API — zero model ops; TTS in the same platform (used for our voice replies)
 - ❌ API-only (needs connectivity); file-upload + polling adds ~8 s round-trip latency

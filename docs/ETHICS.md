@@ -16,7 +16,7 @@ The system is designed for code-switched speech across English, Swahili, Yoruba,
 Voice-first design prioritizes low-literacy populations and users with limited access to digital interfaces. The interface works on basic smartphones and low-bandwidth connections.
 
 ## Dataset Ethics
-Benchmarking uses the AfriSwitch dataset (CC BY NC SA 4.0), which contains simulated consultations. All samples are used in accordance with the license terms. No real patient data is included in submitted audio samples without explicit consent.
+Benchmarking uses the AfriSwitch dataset (CC BY NC SA 4.0), which contains in-the-wild conversational speech sourced from public YouTube videos and podcasts. All samples are used in accordance with the license terms. No real patient data is included in submitted audio samples without explicit consent.
 
 ## Bias Mitigation
 The benchmark evaluates per-language and per-accent WER to surface disparities. Models are tested across the full diversity of African speech patterns, not just dominant varieties.

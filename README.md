@@ -30,7 +30,7 @@ Synthetic pilot (N=6, Sahara-TTS-generated audio — circularity disclosed): Sah
 
 - **`public/demo-video/afrivoice-demo-final.mp4`** (86s, narrated + subtitles) — **the submission video**. A **real screen recording of the live production app**, not a mock: consent modal → a **real voice message** (code-switched Swahili–English, transcribed live by Sahara STT) is triaged with intent + urgency badges and a structured **triage handoff card** → a follow-up ("getting worse, dizzy") shows the agent **reasoning over the full conversation** — escalating to **high urgency** with advice and a handoff card that accumulates both turns → an emergency message ("severe chest pain… cannot breathe") triggers the red **emergency urgency** badge with seek-immediate-care guidance → the live benchmark page with the N=120 official results. Narration: Sahara TTS voiceover; burned-in subtitles for muted viewing.
 - `public/demo-video/afrivoice-live-demo-narrated.mp4` / `afrivoice-live-demo.mp4` — earlier cut (same flow, longer processing holds).
-- YouTube: **(link to be added — upload `afrivoice-demo-final.mp4` as unlisted and paste the URL here)**
+- YouTube: **https://youtu.be/5267KLSDdc0?si=gsq_i23x04CzjTGI** (unlisted, 86s, narrated + subtitles)
 - Older narrated slideshow: `public/demo-video/afrivoice-demo.mp4` (superseded by the live recording).
 
 ## 🏗️ Stack

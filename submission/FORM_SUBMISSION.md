@@ -56,7 +56,7 @@ Explicit voice consent before recording. Audio is transient: uploaded, transcrib
 
 ## Demo
 
-**Demo Video URL:** PASTE_YOUTUBE_LINK_HERE
+**Demo Video URL:** https://youtu.be/5267KLSDdc0?si=gsq_i23x04CzjTGI
 
 (86s, unlisted. Shows the live production app: consent → real code-switched Swahili–English voice input via Sahara STT → clarifying question → follow-up escalation to high urgency with an accumulated triage handoff card → emergency safety net → N=120 benchmark results.)
 

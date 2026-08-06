@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BENCHMARK_EXECUTIVE</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+
+<style>
+body { font-family: -apple-system, "Segoe UI", Arial, sans-serif; max-width: 860px; margin: 2em auto; padding: 0 1em; line-height: 1.5; color: #1a1a1a; font-size: 13px; }
+h1, h2, h3 { color: #0b6e4f; }
+h1 { font-size: 20px; }
+h2 { font-size: 16px; margin-top: 1.2em; }
+h3 { font-size: 14px; }
+table { border-collapse: collapse; width: 100%; margin: 0.6em 0; font-size: 12px; }
+th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: left; }
+th { background: #0b6e4f; color: #fff; }
+tr:nth-child(even) { background: #f4f8f6; }
+code { background: #f0f0f0; padding: 1px 3px; border-radius: 3px; font-size: 11px; }
+</style>
+</head>
+<body>
+<h1 id="afrivoice-triage--benchmark-report-executive-summary">AfriVoice
+Triage — Benchmark Report (Executive Summary)</h1>
+<p><strong>Models compared:</strong> Intron Sahara v2, OpenAI Whisper
+large-v3, wav2vec2 XLS-R-53 (English-finetuned head).<br />
+<strong>Dataset:</strong> 120 real in-the-wild code-switched utterances
+from the official AfriSwitch test split (20 per language × 6 language
+pairs: Hausa, Pidgin, Swahili, Yoruba, Igbo, Shona).<br />
+<strong>Metric:</strong> Word Error Rate (WER) via <code>jiwer</code>,
+lower is better. All models evaluated on the <strong>identical 120
+samples</strong>.<br />
+<strong>Report date:</strong> Aug 6, 2026.</p>
+<h2 id="1-headline-results">1. Headline results</h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Overall WER</th>
+<th>Mean latency</th>
+<th>Best on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Intron Sahara v2</strong></td>
+<td><strong>0.603</strong></td>
+<td>7.4 s</td>
+<td>Hausa, Swahili, Yoruba overall</td>
+</tr>
+<tr>
+<td>Whisper large-v3</td>
+<td>0.692</td>
+<td>79.6 s</td>
+<td>Pidgin, Igbo, Shona</td>
+</tr>
+<tr>
+<td>wav2vec2 XLS-R-53</td>
+<td>0.853</td>
+<td>3.1 s</td>
+<td>— (fastest, but weakest accuracy)</td>
+</tr>
+</tbody>
+</table>
+<p>Sahara wins the overall comparison and is the strongest model on 3 of
+the 6 language pairs; Whisper is strongest on the other 3. No single
+model dominates across all African language pairs.</p>
+<h2 id="2-per-language-wer-real-afriswitch">2. Per-language WER (real
+AfriSwitch)</h2>
+<table>
+<thead>
+<tr>
+<th>Language pair</th>
+<th>Sahara v2</th>
+<th>Whisper large-v3</th>
+<th>XLS-R-53</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hausa–English</td>
+<td><strong>0.371</strong></td>
+<td>0.892</td>
+<td>0.962</td>
+</tr>
+<tr>
+<td>Pidgin–English</td>
+<td>0.390</td>
+<td><strong>0.338</strong></td>
+<td>0.623</td>
+</tr>
+<tr>
+<td>Swahili–English</td>
+<td><strong>0.400</strong></td>
+<td>0.525</td>
+<td>0.906</td>
+</tr>
+<tr>
+<td>Yoruba–English</td>
+<td><strong>0.688</strong></td>
+<td>0.959</td>
+<td>0.956</td>
+</tr>
+<tr>
+<td>Igbo–English</td>
+<td>0.881</td>
+<td><strong>0.668</strong></td>
+<td>0.795</td>
+</tr>
+<tr>
+<td>Shona–English</td>
+<td>0.885</td>
+<td><strong>0.773</strong></td>
+<td>0.878</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-why-this-comparison-matters-for-triage">3. Why this comparison
+matters for triage</h2>
+<p>In a medical triage pipeline, the worst failure is not a wrong word —
+it is a <strong>silent deletion of a non-English symptom
+segment</strong>. We observed this with Whisper on a Hausa–English
+urgent-care utterance: the entire Hausa portion vanished, while Sahara
+kept both language spans. For a patient describing “kifua” (chest pain)
+in Hausa, that deletion changes the safety outcome.</p>
+<h2 id="4-pros-and-cons-per-model">4. Pros and cons per model</h2>
+<p><strong>Intron Sahara v2</strong></p>
+<ul>
+<li>✅ Best overall WER on real code-switched African speech;
+purpose-built for the task</li>
+<li>✅ No segment deletion; handles intra-utterance switching without
+configuration</li>
+<li>✅ Managed API + TTS in one platform; low ops burden</li>
+<li>❌ API-only (needs connectivity); file-upload + polling adds ~7 s
+round-trip latency</li>
+<li>❌ Pricing not public; 8/120 samples returned empty transcripts on
+short/noisy clips</li>
+</ul>
+<p><strong>Whisper large-v3 (open source)</strong></p>
+<ul>
+<li>✅ Strong general ASR; fully offline/on-premise for privacy and
+low-bandwidth sites</li>
+<li>✅ Free at any scale; large ecosystem and tooling</li>
+<li>❌ ~30% higher overall WER than Sahara on code-switched speech;
+silently dropped a non-English segment</li>
+<li>❌ Heavy: needs GPU for usable latency; the measured run fell back
+to CPU int8 (~80 s/utterance)</li>
+</ul>
+<p><strong>wav2vec2 XLS-R-53 (open source)</strong></p>
+<ul>
+<li>✅ Fastest model (~3 s/utterance on CPU), small footprint, fully
+offline</li>
+<li>✅ Multilingual pretraining across 53 languages</li>
+<li>❌ Worst real-data WER (0.853); English-finetuned head mangles
+African-language spans</li>
+<li>❌ Needs per-language African fine-tuning to be clinically
+viable</li>
+</ul>
+<h2 id="5-product-decision">5. Product decision</h2>
+<p>AfriVoice Triage uses <strong>Sahara v2 as the primary STT/TTS
+path</strong> because accuracy and segment preservation directly affect
+patient safety. The architecture is designed to add an offline Whisper
+fallback later for low-connectivity deployments, with the measured WER
+gap displayed to the user as an accuracy caveat.</p>
+<h2 id="6-methodology-and-transparency-short">6. Methodology and
+transparency (short)</h2>
+<ul>
+<li><strong>Sample selection:</strong> first 20 rows of each official
+AfriSwitch test config, identical sample IDs across all models.</li>
+<li><strong>Normalization:</strong> lowercase, strip punctuation,
+collapse whitespace — same for all models.</li>
+<li><strong>Language hints:</strong> Sahara used its
+<code>use_language_asr_input</code> hint per config; Whisper and XLS-R
+had no language hint.</li>
+<li><strong>Empty transcripts:</strong> scored as WER 1.0; 8/120 Sahara
+samples returned empty on short/noisy clips.</li>
+<li><strong>Invalid runs disclosed:</strong> an early Sahara run omitted
+the language hint and returned 107 empty transcripts; the GPU XLS-R
+attempt failed with a Kaggle CUDA kernel error, so the XLS-R result is
+CPU-only. These are documented because transparent reporting
+matters.</li>
+<li><strong>Circularity note:</strong> a supplementary N=6 synthetic
+pilot used Sahara-TTS-generated audio, giving Sahara an inherent
+advantage there; the real-data N=120 table above is the headline
+evidence.</li>
+<li><strong>Full report:</strong> <code>docs/BENCHMARK.md</code> (5
+pages) with complete reproduction links, per-sample JSONL outputs, and
+failed-run details.</li>
+<li><strong>Reproduction:</strong> <code>docs/METHODOLOGY.md</code>,
+public Kaggle kernels
+<code>abrahamsunday123/afrivoice-asr-benchmark</code> and
+<code>abrahamsunday123/afrivoice-sahara-afriswitch-120</code>, and data
+at <code>public/data/</code>.</li>
+</ul>
+</body>
+</html>

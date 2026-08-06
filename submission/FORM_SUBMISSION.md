@@ -62,9 +62,9 @@ Explicit voice consent before recording. Audio is transient: uploaded, transcrib
 
 ## Benchmark Report
 
-**Benchmark Report Link:** https://app-phi-one-ah0g1z34ov.vercel.app/docs/BENCHMARK.pdf
+**Benchmark Report Link (submit this one — 2 pages, within the 3-page limit):** https://app-phi-one-ah0g1z34ov.vercel.app/docs/BENCHMARK_EXECUTIVE.pdf
 
-(Also in the repo: `docs/BENCHMARK.pdf` / `docs/BENCHMARK.md`. Report compares Sahara v2, Whisper large-v3, and wav2vec2 XLS-R-53 on 120 real AfriSwitch code-switched utterances, with per-language WER, latency, pros/cons, and a methodology note.)
+(The full 5-page report with every detail, per-sample JSONL links, and failed-run transparency is also live at `docs/BENCHMARK.pdf` / `docs/BENCHMARK.md`.)
 
 ## Benchmark Audios (optional)
 

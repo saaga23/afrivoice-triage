@@ -6,7 +6,8 @@
 - [ ] Go to the submission form, log in with `abrahamsunday23@gmail.com` + the access token from your registration email
 - [ ] Fill the 8 short questions using `SUBMISSION_ANSWERS.local.md` (copy/paste)
 - [ ] Paste the YouTube link in the demo-video field
-- [ ] Upload `app/docs/BENCHMARK.pdf` as the benchmark report
+- [x] Upload `app/docs/BENCHMARK_EXECUTIVE.pdf` (2-page executive, within the 3-page limit) as the benchmark report
+- [ ] Optional: also attach the full `docs/BENCHMARK.pdf` (5 pages) if the form allows a second document, or link to it in the answers
 - [ ] Optional benchmark audio dataset link (if you want): `https://github.com/saaga23/afrivoice-triage/tree/master/public/data/synthetic-samples`
 - [ ] Submit — only one submission per token, so review once then hit submit
 

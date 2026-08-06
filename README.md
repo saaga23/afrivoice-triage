@@ -71,6 +71,13 @@ Builds a voice-driven patient **triage assistant** that:
 - Recommends next steps (self-care, telehealth, in-person visit)
 - Demonstrates true **agentic capability** — not just transcription
 
+**Why this matters (concrete):** a community clinic in Nigeria receives a patient who says
+*"Ina dauwa da zazzaɓar jiki… my temperature is very high."* In our benchmark, Whisper
+large-v3 silently deleted the Hausa segment — the fever complaint never reached the agent.
+In a real intake queue that is a missed fever. AfriVoice exists so the symptom survives the
+transcription, gets an urgency tier, and lands on a clinician's desk as a structured
+handoff card — in the language mix the patient actually speaks.
+
 ## 📊 Benchmark
 
 Three-way benchmark on code-switched audio (see `docs/BENCHMARK.md` for the full report):
@@ -85,11 +92,11 @@ Dataset: AfriSwitch (54.41 hours, 14 language pairs, 16,602 utterances) + 6 synt
 
 ## 🏆 Judging Criteria
 
-- Real-world impact (35%) — Healthcare triage for 1B+ Africans
-- Code-switching performance (25%) — Agentic use on mixed-language speech
-- Product quality (20%) — Polished UI, clear workflow
-- Technical execution (15%) — Reliable, low-latency pipeline
-- Ethics/safety (5%) — Privacy-first, consent, no diagnoses
+- Real-world impact (20%) — Healthcare triage for 1B+ Africans
+- Code-switching benchmark quality (30%) — 3-model WER comparison on synthetic + real AfriSwitch data
+- Product quality & fit (25%) — Agentic pipeline, UX, workflow fit
+- Technical execution (15%) — Architecture, latency, robustness, privacy
+- Ethics, safety & inclusion (10%) — Consent, privacy-first, bias awareness, no diagnoses
 
 ## 📝 Deliverables
 

@@ -7,7 +7,7 @@ No patient data is stored. Audio is processed temporarily in memory and discarde
 Explicit consent is required before any voice recording begins. Users must actively agree via a consent modal that explains voice processing, temporary storage, and the non-diagnostic nature of the system. Users may decline and still access the text-based interface.
 
 ## Safety
-AfriVoice Triage does not provide definitive diagnoses. It recommends next steps and advises users to consult qualified healthcare professionals. Emergency symptoms trigger an EMERGENCY urgency classification with explicit instructions to seek immediate care. The safety net is multilingual: emergency and symptom keywords are detected across English, Swahili, Yoruba, Hausa, Igbo, Pidgin, Shona, and Kinyarwanda, so a patient does not need to use English to be escalated.
+AfriVoice Triage does not provide definitive diagnoses. It recommends next steps and advises users to consult qualified healthcare professionals. Emergency symptoms trigger an EMERGENCY urgency classification with explicit instructions to seek immediate care. The safety net is multilingual: emergency keywords (bleeding, breathing difficulty, unconsciousness, chest symptoms) are detected across English, Swahili, Yoruba, Hausa, Igbo, Pidgin, Shona, and Kinyarwanda, with general symptom and severity detection across English, Swahili, Hausa, and Yoruba — so a patient does not need to use English to be escalated.
 
 ## Cultural Awareness
 The system is designed for code-switched speech across English, Swahili, Yoruba, Hausa, Igbo, Pidgin, Shona, and Kinyarwanda. It does not impose Western-language bias and responds in the language mix the patient uses.

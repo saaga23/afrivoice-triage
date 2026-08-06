@@ -26,20 +26,23 @@ Build an **agentic voice application** — voice drives a downstream task or act
 5. **Ethics / Inclusion** — brief note on privacy, consent, safety, responsible data use.
 6. **Benchmark Audios (optional)** — consented, de-identified code-switched audio samples used for benchmarking in selected category, with metadata.
 
-### Judging Criteria
-| Criterion | Weight |
-|-----------|--------|
-| Real-world impact | 35% |
-| Code-switching performance | 25% |
-| Product quality | 20% |
-| Technical execution | 15% |
-| Ethics, safety & inclusion | 5% |
+### Judging Criteria (official organizer brief, Aug 3 email — supersedes the earlier scraped table)
+| Criterion | Weight | What it asks |
+|-----------|--------|--------------|
+| Real-world impact | 20% | Genuine user need for a meaningful/large enough target group |
+| Code-switching benchmark quality | 30% | Quality and fairness of the cross-model comparison — highest weight; a rigorous report beats a polished pitch |
+| Product quality & fit | 25% | Is it agentic? Appropriate for the target user? UX and workflow fit |
+| Technical execution | 15% | Architecture, design, integration, latency, robustness, privacy/security |
+| Ethics, safety & inclusion | 10% | Consent, privacy, bias awareness, user dignity |
+
+**One submission per access token** — no second entry, everything must be ready before submitting.
+**Submission form:** 8 short questions (solution, problem, target users, how it solves the problem, code-switching support, Sahara API usage, agentic behavior, technical overview + ethics/inclusion) + demo video link + **benchmark report PDF** + optional benchmark audio dataset link. Answers drafted in `SUBMISSION_ANSWERS.local.md` (workspace root, not in repo).
 
 **Bonus consideration for:** strong benchmark design, low-resource language coverage, offline/low-bandwidth readiness, clear potential to continue into full Sahara Switch Africa Challenge.
 
 ### Timeline
 - **3rd August 2026** — Registration opens
-- **6th August 2026** — Submission deadline
+- **6th August 2026, 1:00pm WAT** — Submission deadline
 - **7th August 2026** — Finalists announced at the workshop (Main Plenary Hall)
 - Same day / later online — Winner(s) announced
 
@@ -51,8 +54,8 @@ Teams can carry over into Intron's full Sahara CodeSwitch Africa Challenge (buil
 - 2nd place: $800
 
 ### Resources Provided by Intron
-- Access to Sahara v2.5 code-switching APIs across supported language pairs
-- Access to AfriSwitch benchmark dataset with code-switching samples in 12 language pairs
+- Access to Sahara code-switching APIs across supported language pairs (we integrate **Sahara v2** via the Intron Voice API)
+- Access to AfriSwitch benchmark dataset with code-switching samples in **14 language pairs** (per the official HF dataset card)
 - Public benchmarking framework for comparing model performance
 
 ---

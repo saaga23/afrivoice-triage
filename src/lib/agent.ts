@@ -50,6 +50,9 @@ const EMERGENCY_TERMS = [
 const SYMPTOM_TERMS = [
   "pain", "sick", "symptom", "headache", "fever", "migraine", "stomach", "nausea",
   "vomit", "diarrhea", "dizzy", "cough", "ache",
+  "temperature", "urgent", "hospital", "doctor", "clinic", "medicine",
+  // severity phrases (also catch partial ASR drops like "...is very high")
+  "very high", "severe",
   // Swahili: pain, fever, head
   "maumivu", "joto", "kichwa", "homa", "kizunguzungu",
   // Hausa: pain, fever
@@ -57,6 +60,8 @@ const SYMPTOM_TERMS = [
   // Yoruba: pain/sick
   "iraanu", "aarun", "ori",
 ];
+
+const SEVERITY_TERMS = ["severe", "urgent", "very high", "immediately", "intense", "worst"];
 
 function fold(s: string): string {
   return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -69,12 +74,14 @@ export function detectEmergency(text: string): boolean {
 
 function computeUrgency(text: string, intent?: string): TriageSummary["urgency"] {
   if (detectEmergency(text)) return "emergency";
+  const f = fold(text);
+  if (intent === "triage" && SEVERITY_TERMS.some((t) => f.includes(fold(t)))) return "high";
   if (intent === "triage") return "moderate";
   return "low";
 }
 
 const SYSTEM_PROMPT = `You are a medical triage assistant for a healthcare clinic in Africa.
-You specialize in code-switched conversations (English, Swahili, Yoruba, Hausa, Amharic, Zulu, Kinyarwanda).
+You specialize in code-switched conversations (English, Swahili, Yoruba, Hausa, Igbo, Pidgin, Shona, Kinyarwanda).
 Your job is to triage patients by collecting symptoms, assessing urgency, and recommending next steps.
 Always ask clarifying questions if symptoms are unclear.
 Do not provide definitive diagnoses. If emergency symptoms (chest pain, difficulty breathing, severe bleeding) are reported, classify as HIGH urgency.

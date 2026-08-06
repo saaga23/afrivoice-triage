@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { createSaharaClient } from "@/lib/sahara";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 function computeWER(reference: string, hypothesis: string): number {
   const ref = reference.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);

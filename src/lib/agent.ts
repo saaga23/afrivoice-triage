@@ -61,7 +61,7 @@ const SYMPTOM_TERMS = [
   "iraanu", "aarun", "ori",
 ];
 
-const SEVERITY_TERMS = ["severe", "urgent", "very high", "immediately", "intense", "worst"];
+const SEVERITY_TERMS = ["severe", "urgent", "very high", "immediately", "intense", "worst", "getting worse", "worsening", "worse"];
 
 function fold(s: string): string {
   return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -126,7 +126,11 @@ export class VoiceAgent {
       },
     })
       .addNode("classify_intent", async (state: AgentState) => {
-        const userText = state.transcription || state.messages.filter(m => m.role === "user").pop()?.content || "";
+        // Classify over the WHOLE conversation, not just the last message —
+        // "since yesterday" only makes sense as triage alongside turn 1's symptoms.
+        const userText = state.transcription
+          ? [state.messages.filter(m => m.role === "user").map(m => m.content).join(" "), state.transcription].filter(Boolean).join(" ")
+          : state.messages.filter(m => m.role === "user").map(m => m.content).join(" ");
         if (this.llm) {
           try {
             const completion = await this.llm.chat.completions.create({
@@ -137,8 +141,8 @@ export class VoiceAgent {
               ],
               max_tokens: 20,
             });
+            // Return only channel updates (partial) — full-state spreads double-apply reducers.
             return {
-              ...state,
               intent: completion.choices[0]?.message?.content?.trim() || "general_support",
             };
           } catch {
@@ -150,7 +154,7 @@ export class VoiceAgent {
         if (SYMPTOM_TERMS.some((t) => lower.includes(fold(t)))) intent = "triage";
         else if (lower.includes("book") || lower.includes("appointment") || lower.includes("schedule")) intent = "booking";
         else if (lower.includes("refill") || lower.includes("prescription")) intent = "refill";
-        return { ...state, intent };
+        return { intent };
       })
       .addNode("route_to_tool", async (state: AgentState) => {
         // Return only channel updates (partial) — full-state spreads double-apply reducers.
@@ -169,14 +173,23 @@ export class VoiceAgent {
         return { toolCalls: [] };
       })
       .addNode("generate_response", async (state: AgentState) => {
-        const lastUser = state.messages.filter(m => m.role === "user").pop()?.content || state.transcription || "";
-        const urgency = computeUrgency(lastUser, state.intent);
+        // Reason over the full conversation so follow-up answers accumulate:
+        // urgency escalates on ANY user message, and the handoff card carries
+        // everything the patient has said, not just the last utterance.
+        const userMessages = state.messages.filter(m => m.role === "user");
+        const allUserText = userMessages.map(m => m.content).join(" ");
+        const userTurns = userMessages.length;
+        const urgency = computeUrgency(allUserText, state.intent);
         const triageSummary: TriageSummary | undefined = state.intent === "triage" ? {
-          symptoms: lastUser.slice(0, 300),
+          symptoms: allUserText.slice(0, 300),
           urgency,
           recommended_action: urgency === "emergency"
             ? "seek_immediate_care"
-            : "collect_more_symptoms_then_advise",
+            : urgency === "high"
+              ? "visit_clinic_today"
+              : userTurns >= 2
+                ? "visit_clinic_if_worsens"
+                : "collect_more_symptoms_then_advise",
           not_a_diagnosis: true,
         } : undefined;
         if (this.llm) {
@@ -199,7 +212,7 @@ export class VoiceAgent {
             // fall through to rule-based
           }
         }
-        const response = ruleBasedResponse(lastUser, state.intent);
+        const response = ruleBasedResponse(allUserText, state.intent, userTurns);
         return {
           response,
           urgency,
@@ -214,7 +227,7 @@ export class VoiceAgent {
       .compile();
   }
 
-  async processVoiceInput(audioBlob: Blob, language = "en"): Promise<AgentState> {
+  async processVoiceInput(audioBlob: Blob, language = "en", history: AgentMessage[] = []): Promise<AgentState> {
     const client = this.client;
     if (!client) {
       throw new Error("SAHARA_API_KEY is required for voice input");
@@ -225,6 +238,7 @@ export class VoiceAgent {
 
     const state: AgentState = {
       messages: [
+        ...history,
         { role: "user", content: transcription.text },
       ],
       transcription: transcription.text,
@@ -243,9 +257,10 @@ export class VoiceAgent {
     return result;
   }
 
-  async textChat(message: string): Promise<AgentState> {
+  async textChat(message: string, history: AgentMessage[] = []): Promise<AgentState> {
     const state: AgentState = {
       messages: [
+        ...history,
         { role: "user", content: message },
       ],
     };
@@ -263,14 +278,23 @@ export class VoiceAgent {
   }
 }
 
-function ruleBasedResponse(userText: string, intent?: string): string {
-  const lower = fold(userText);
+function ruleBasedResponse(allUserText: string, intent: string | undefined, userTurns: number): string {
+  const lower = fold(allUserText);
   const hasSymptom = SYMPTOM_TERMS.some((t) => lower.includes(fold(t)));
   if (intent === "triage" || hasSymptom) {
-    if (detectEmergency(userText)) {
+    const urgency = computeUrgency(allUserText, "triage");
+    if (urgency === "emergency") {
       return "This sounds like a medical emergency. Please seek immediate care at the nearest hospital or call emergency services.";
     }
-    return "I understand you're not feeling well. Can you tell me more about your symptoms? How long have you been feeling this way?";
+    if (urgency === "high") {
+      return "Your symptoms sound serious. Please go to a hospital or clinic today for a proper examination. This is not a diagnosis — a health worker needs to assess you. Go immediately if you develop chest pain, trouble breathing, or heavy bleeding.";
+    }
+    if (userTurns <= 1) {
+      // First triage turn: gather the picture before advising.
+      return "I understand you're not feeling well. Can you tell me more about your symptoms? How long have you been feeling this way?";
+    }
+    // Follow-up turns: the patient has answered — now give an actual assessment.
+    return "Thank you, that helps. Based on everything you've described, your symptoms need attention but do not appear to be an emergency. I recommend visiting a clinic within the next day or two, resting, and drinking plenty of fluids. If things get worse — especially chest pain, trouble breathing, or bleeding — seek care immediately. This is not a diagnosis.";
   }
   if (intent === "booking") return "I can help you book an appointment. What date and time works best for you?";
   if (intent === "refill") return "I can help with your prescription refill. Please provide your prescription ID.";

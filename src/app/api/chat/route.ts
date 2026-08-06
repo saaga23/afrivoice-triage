@@ -6,7 +6,12 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { message, audio, language } = body as { message?: string; audio?: string; language?: string };
+    const { message, audio, language, history } = body as {
+      message?: string;
+      audio?: string;
+      language?: string;
+      history?: { role: string; content: string }[];
+    };
 
     if (!message && !audio) {
       return NextResponse.json(
@@ -14,6 +19,13 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Conversation context arrives from the client each turn — the server keeps
+    // nothing, preserving the no-persistent-storage privacy guarantee.
+    const sanitizedHistory = (Array.isArray(history) ? history : [])
+      .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .slice(-20)
+      .map((m) => ({ role: m.role as "user" | "assistant", content: m.content.slice(0, 1000) }));
 
     const apiKey = process.env.SAHARA_API_KEY;
     if (audio && !apiKey) {
@@ -31,7 +43,7 @@ export async function POST(req: NextRequest) {
       const base64Data = audio.includes(",") ? audio.split(",")[1] : audio;
       const buffer = Buffer.from(base64Data, "base64");
       const blob = new Blob([buffer], { type: "audio/webm" });
-      const state = await agent.processVoiceInput(blob, language || "en");
+      const state = await agent.processVoiceInput(blob, language || "en", sanitizedHistory);
       return NextResponse.json({
         transcription: state.transcription,
         intent: state.intent,
@@ -43,7 +55,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const state = await agent.textChat(message!);
+    const state = await agent.textChat(message!, sanitizedHistory);
     return NextResponse.json({
       transcription: message,
       intent: state.intent,

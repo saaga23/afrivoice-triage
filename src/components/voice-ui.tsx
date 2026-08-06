@@ -149,10 +149,15 @@ export function ChatInterface() {
   const processResponse = async (userContent: string, audioBase64?: string, userMessageId?: string) => {
     setIsLoading(true);
     try {
+      // Send prior turns so the agent reasons over the whole conversation.
+      // Server stores nothing — history is re-sent by the client each time.
+      const history = messages
+        .slice(-20)
+        .map((m) => ({ role: m.role, content: m.content }));
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(audioBase64 ? { audio: audioBase64, language: voiceLang } : { message: userContent }),
+        body: JSON.stringify(audioBase64 ? { audio: audioBase64, language: voiceLang, history } : { message: userContent, history }),
       });
 
       if (!res.ok) throw new Error("Failed to get response");

@@ -18,7 +18,7 @@ export default function Home() {
           <nav className="flex items-center gap-3">
             <a
               href="/bench"
-              className="inline-flex items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] hover:bg-muted hover:text-foreground dark:hover:bg-muted/50"
+              className="hidden sm:inline-flex items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] hover:bg-muted hover:text-foreground dark:hover:bg-muted/50"
             >
               Benchmark
             </a>
@@ -26,7 +26,7 @@ export default function Home() {
               href="https://github.com/saaga23/afrivoice-triage"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] hover:bg-muted hover:text-foreground dark:hover:bg-muted/50"
+              className="hidden sm:inline-flex items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] hover:bg-muted hover:text-foreground dark:hover:bg-muted/50"
             >
               Source
             </a>
@@ -52,7 +52,7 @@ export default function Home() {
               <Zap className="w-3 h-3 mr-1" />
               MLC Africa × Intron Challenge 2026
             </Badge>
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
               Agentic Voice AI for{" "}
               <span className="text-emerald-600 dark:text-emerald-400">African Healthcare</span>
             </h1>
@@ -85,7 +85,7 @@ export default function Home() {
       <section id="demo" className="container mx-auto px-4 pb-20">
         <div className="max-w-5xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 min-w-0">
               <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/60 dark:shadow-none border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div>
@@ -104,13 +104,13 @@ export default function Home() {
                     <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Online</span>
                   </div>
                 </div>
-                <div className="h-[480px]">
+                <div className="h-[68dvh] min-h-[380px] sm:h-[520px]">
                   <ChatInterface />
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 min-w-0">
               <Card className="p-5">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">

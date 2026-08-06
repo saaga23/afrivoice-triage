@@ -137,6 +137,7 @@ export function ChatInterface() {
   const [voiceDeclined, setVoiceDeclined] = useState(false);
   const [voiceLang, setVoiceLang] = useState("en");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputBarRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const scrollToBottom = () => {
@@ -248,7 +249,23 @@ export function ChatInterface() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+    // On mobile the chat card fills most of the screen; when the agent replies,
+    // make sure the input bar is in view so the conversation can continue.
+    if (!isLoading && messages.length > 0) {
+      inputBarRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    // After the consent gate opens the chat, bring the input bar into view
+    // (small phones would otherwise land with it just below the fold).
+    if (consentGiven || voiceDeclined) {
+      const t = setTimeout(() => {
+        inputBarRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }, 100);
+      return () => clearTimeout(t);
+    }
+  }, [consentGiven, voiceDeclined]);
 
   useEffect(() => {
     return () => {
@@ -419,7 +436,7 @@ export function ChatInterface() {
         </div>
       </ScrollArea>
 
-      <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
+      <div ref={inputBarRef} className="px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <select
             value={voiceLang}
@@ -427,7 +444,7 @@ export function ChatInterface() {
             disabled={voiceDeclined && !consentGiven}
             aria-label="Voice input language"
             title="Language you'll speak in (Sahara ASR hint)"
-            className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-2.5 text-xs dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 disabled:opacity-40"
+            className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-1.5 sm:px-2 py-2.5 text-xs dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 disabled:opacity-40 max-w-[88px] sm:max-w-none"
           >
             <option value="en">English</option>
             <option value="sw">Swahili</option>
@@ -445,7 +462,8 @@ export function ChatInterface() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Describe your symptoms..."
             aria-label="Describe your symptoms"
-            className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:text-slate-100 dark:placeholder:text-slate-500"
+            enterKeyHint="send"
+            className="flex-1 min-w-0 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 sm:px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 dark:text-slate-100 dark:placeholder:text-slate-500"
             disabled={isLoading}
           />
           <Button

@@ -26,9 +26,9 @@
 
 ## 🎬 Demo Video
 
-- **`public/demo-video/afrivoice-live-demo-narrated.mp4`** (60s, narrated) — a **real screen recording of the live production app**, not a mock: consent modal → a code-switched Swahili–English symptom report is triaged with intent + urgency badges and a structured **triage handoff card** → an emergency message ("severe chest pain… cannot breathe") triggers the red **emergency urgency** badge with seek-immediate-care guidance and a handoff card → the benchmark methodology page. Narration: Sahara TTS voiceover.
-- `public/demo-video/afrivoice-live-demo.mp4` — same recording without narration.
-- YouTube: **(link to be added — upload `afrivoice-live-demo-narrated.mp4` as unlisted and paste the URL here)**
+- **`public/demo-video/afrivoice-demo-final.mp4`** (58s, narrated + subtitles) — **the submission video**. A **real screen recording of the live production app**, not a mock: consent modal → a code-switched Swahili–English symptom report is triaged with intent + urgency badges and a structured **triage handoff card** → an emergency message ("severe chest pain… cannot breathe") triggers the red **emergency urgency** badge with seek-immediate-care guidance and a handoff card → the benchmark methodology page. Narration: Sahara TTS voiceover; burned-in subtitles for muted viewing.
+- `public/demo-video/afrivoice-live-demo-narrated.mp4` / `afrivoice-live-demo.mp4` — earlier cut (same flow, longer processing holds).
+- YouTube: **(link to be added — upload `afrivoice-demo-final.mp4` as unlisted and paste the URL here)**
 - Older narrated slideshow: `public/demo-video/afrivoice-demo.mp4` (superseded by the live recording).
 
 ## 🏗️ Stack

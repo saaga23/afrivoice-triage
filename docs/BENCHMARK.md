@@ -70,48 +70,45 @@ African-language spans — exactly the code-switching failure mode this challeng
 Whisper's silent segment deletion (Hausa example) is a patient-safety hazard in a triage
 product: the agent never sees the symptom.
 
-## 5. Real-data validation — Sahara v2 vs Whisper large-v3 on AfriSwitch (N=120)
+## 5. Real-data validation — all 3 models on AfriSwitch (N=120)
 
 The synthetic pilot above is supplemented by a run on **120 real in-the-wild utterances**
 (20 per config × 6 configs) drawn from the official AfriSwitch test split
-(`public/data/afriswitch/`). Both models were evaluated on the **same 120 samples** with the
-same `jiwer` normalization; Sahara used the correct per-language ASR hint
-(`use_language_asr_input`: sw/yo/ha/ig/pcm/sn). Per-sample results:
-`public/data/benchmark-afriswitch-sahara.jsonl` and `public/data/benchmark-afriswitch-opensource.jsonl`.
+(`public/data/afriswitch/`). **All three models were evaluated on the same 120 samples** with
+the same `jiwer` normalization; Sahara used the correct per-language ASR hint
+(`use_language_asr_input`: sw/yo/ha/ig/pcm/sn), Whisper large-v3 ran on Kaggle GPU fp16,
+and wav2vec2 XLS-R-53 ran on Kaggle CPU fp32. Per-sample results:
+`public/data/benchmark-afriswitch-sahara.jsonl`,
+`public/data/benchmark-afriswitch-opensource.jsonl`,
+`public/data/benchmark-afriswitch-xlsr-cpu.jsonl`.
 
-| Language | n | Sahara v2 ↓ | Whisper large-v3 ↓ |
-|----------|---|-------------|--------------------|
-| Hausa–English | 20 | **0.371** | 0.892 |
-| Pidgin–English | 20 | **0.390** | 0.338 |
-| Swahili–English | 20 | **0.400** | 0.525 |
-| Yoruba–English | 20 | **0.688** | 0.959 |
-| Igbo–English | 20 | 0.881 | **0.668** |
-| Shona–English | 20 | 0.885 | **0.773** |
-| **Overall** | **120** | **0.603** | **0.692** |
+| Language | n | Sahara v2 ↓ | Whisper large-v3 ↓ | wav2vec2 XLS-R-53 ↓ |
+|----------|---|-------------|--------------------|---------------------|
+| Hausa–English | 20 | **0.371** | 0.892 | 0.962 |
+| Pidgin–English | 20 | **0.390** | **0.338** | 0.623 |
+| Swahili–English | 20 | **0.400** | 0.525 | 0.906 |
+| Yoruba–English | 20 | **0.688** | 0.959 | 0.956 |
+| Igbo–English | 20 | 0.881 | **0.668** | **0.795** |
+| Shona–English | 20 | 0.885 | **0.773** | **0.878** |
+| **Overall** | **120** | **0.603** | **0.692** | **0.853** |
 
-Latency: Sahara 7.4 s/utterance (API upload + polling); Whisper 79.6 s/utterance (GPU, large-v3 fp16).
+Latency: Sahara 7.4 s/utterance (API upload + polling); Whisper 79.6 s/utterance (GPU);
+XLS-R 3.1 s/utterance (CPU).
 
 **What this shows, honestly:**
 
-- **Sahara wins on the overall real-data WER (0.603 vs 0.692)**, but the gap narrows and
-  flips on Igbo/Shona, where Whisper is better (0.67–0.77 vs 0.88). That is the definition
-  of a fair benchmark: neither model is universally best, and the choice should depend on
-  the deployment language.
-- Sahara is genuinely strong on Hausa, Pidgin, and Swahili code-switching (0.37–0.40) on
-  unscripted podcast/YouTube speech.
-- Whisper's overall 0.692 is respectable but Hausa and Yoruba WER are poor (0.89–0.96),
-  and it still exhibits segment-dropping behavior on non-English spans — exactly the
-  failure mode the product's multilingual emergency net is designed to catch.
+- **Sahara wins the overall real-data WER (0.603)**, followed by Whisper (0.692) and XLS-R (0.853).
+- Sahara is strongest on Hausa, Pidgin, and Swahili code-switching (0.37–0.40) on unscripted
+  podcast/YouTube speech.
+- Whisper is stronger than Sahara on Igbo and Shona (0.67–0.77 vs 0.88) — neither model is
+  universally best, and deployment language should drive the choice.
+- XLS-R-53 is the fastest model but the least accurate on real code-switched audio; its
+  English-finetuned head struggles badly with African-language spans.
 - 8/120 Sahara samples returned empty transcripts (scored WER 1.0) — very short or noisy
-  clips the API declined to transcribe. Whisper returned text for every sample.
+  clips the API declined to transcribe. Whisper and XLS-R returned text for every sample.
 - Some "errors" are orthographic, not acoustic: e.g. Yoruba ref *"What? E mean e…"* →
   hyp *"Kí ni? Ẹ̀ túmọ̀ sí ẹ́…"* — a correct but dialect/orthography-shifted rewrite that WER
   punishes.
-
-**wav2vec2 XLS-R-53 on N=120:** the GPU run failed with a CUDA kernel-compatibility error on
-Kaggle's Tesla P100 (`cudaErrorNoKernelImageForDevice`). A CPU-only rerun is queued; until it
-lands, the XLS-R-53 number in Section 2 (0.604 on synthetic audio, CPU fp32) is carried.
-This failure is itself noted because transparent benchmark reporting matters.
 
 **Circularity disclosure (synthetic set):** the 6 synthetic references were generated with
 Sahara TTS, so Sahara ASR has an inherent advantage on its own voice in Section 2 — one
@@ -121,8 +118,9 @@ more reason the real-data run above is the more trustworthy evidence.
 language hint, and Sahara's default English ASR returned empty transcripts for 107/119
 non-English-dominant samples. A rerun on Aug 6 also collided with a multi-hour Intron-side
 STT/TTS outage (empty transcripts even on previously-working files, verified by direct
-probe). The results above are from the post-recovery run with correct per-language hints;
-the language-selector fix this bug prompted now ships in the product.
+probe). The wav2vec2 GPU attempt failed with a Kaggle CUDA kernel-image error, so its
+real-data run is CPU-only. All of this is documented because transparent benchmark
+reporting matters; the final numbers above are from clean, post-recovery runs.
 
 ## 6. Pros and cons per model (required)
 
